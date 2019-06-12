@@ -1,6 +1,8 @@
 package com.devashish.erpapp;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -10,6 +12,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +26,7 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,6 +34,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -45,11 +50,11 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mProductList;
     List<Product> ProductList;
     ProductAdapter productAdapter;
-
+    CardView sortCard;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     ProgressDialog pd;
     private FirebaseAuth mAuth;
-
+    String sort_choice = "";
     private void applyFontToMenuItem(MenuItem mi) {
         Typeface font = Typeface.createFromAsset(getAssets(), "fonts/font_app.ttf");
         SpannableString mNewTitle = new SpannableString(mi.getTitle());
@@ -73,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         setUpToolBar();
 
+        sortCard = (CardView) findViewById(R.id.sort_card);
         navigationView = (NavigationView) findViewById(R.id.navigationView);
 
         navigationView.setItemIconTintList(null);
@@ -115,11 +121,17 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case (R.id.Orders):
                         drawerLayout.closeDrawers();
-                        Intent intentOrder = new Intent(MainActivity.this,DescriptionActivity.class);
+                        Intent intentOrder = new Intent(MainActivity.this,OrdersActivity.class);
                         startActivity(intentOrder);
                         //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
                         break;
-
+                    case  (R.id.logout):
+                        drawerLayout.closeDrawers();
+                        FirebaseAuth.getInstance().signOut();
+                        Intent intentL = new Intent(MainActivity.this,LoginActivity.class);
+                        startActivity(intentL);
+                        finish();
+                        break;
                 }
                 return false;
             }
@@ -154,6 +166,58 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        sortCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String[] listitem = new String[]{"High to Low","Low to High"};
+                AlertDialog.Builder sort_alert= new AlertDialog.Builder(MainActivity.this);
+                sort_alert.setTitle("Sort by price");
+                sort_alert.setIcon(R.drawable.sort);
+                sort_alert.setSingleChoiceItems(listitem, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        ProductList.clear();
+                        pd = new ProgressDialog(MainActivity.this);
+                        pd.setCanceledOnTouchOutside(false);
+                        pd.setCancelable(true);
+                        pd.setTitle("Loading....");
+                        pd.setMessage("Please Wait");
+                        pd.show();
+                        db.collection("AllItems").orderBy("item_price", listitem[which]=="Low to High" ? Query.Direction.ASCENDING : Query.Direction.DESCENDING).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()){
+                                    for (QueryDocumentSnapshot doc : task.getResult()){
+                                        Product p = doc.toObject(Product.class);
+                                        ProductList.add(p);
+                                    }
+
+                                    productAdapter = new ProductAdapter(MainActivity.this, ProductList);
+                                    mProductList.setAdapter(productAdapter);
+
+                                    //If ProgressDialog is showing Dismiss it
+                                    if(pd.isShowing())
+                                    {
+                                        pd.dismiss();
+                                    }
+
+                                }
+                            }
+                        });
+                    }
+                });
+                sort_alert.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+                AlertDialog ad = sort_alert.create();
+                ad.show();
+            }
+        });
 
     }
 
@@ -165,16 +229,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case (R.id.search):
-                drawerLayout.closeDrawers();
-                FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+                Intent intent = new Intent(MainActivity.this,SearchActivity.class);
                 startActivity(intent);
-                finish();
                 break;
-
         }
         return true;
     }

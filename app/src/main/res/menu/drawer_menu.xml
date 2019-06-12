@@ -20,5 +20,11 @@
             android:icon="@drawable/orders"
 
             ></item>
+        <item
+            android:id="@+id/logout"
+            android:title="Logout"
+            android:icon="@drawable/exit"
+
+            ></item>
     </group>
 </menu>

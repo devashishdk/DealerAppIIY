@@ -25,10 +25,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".SignUpActivity" />
-        <activity android:name=".LoginActivity">
-
-        </activity>
-        <activity android:name=".ProfileActivity"></activity>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".OrderConfirmedActivity" />
+        <activity android:name=".OrdersActivity" />
+        <activity android:name=".SearchActivity"></activity>
     </application>
 
 </manifest>

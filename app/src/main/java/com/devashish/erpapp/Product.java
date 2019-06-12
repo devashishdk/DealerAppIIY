@@ -1,7 +1,7 @@
 package com.devashish.erpapp;
 
 public class Product {
-    public Product(String item_brand, String item_category, String item_desc, String item_discount, String item_image, String item_mrp, String item_name, String item_price, String item_quantity) {
+    public Product(String item_brand, String item_category, String item_desc, String item_discount, String item_image, String item_mrp, String item_name, String item_price, String item_quantity,String item_id) {
         this.item_brand = item_brand;
         this.item_category = item_category;
         this.item_desc = item_desc;
@@ -11,6 +11,7 @@ public class Product {
         this.item_name = item_name;
         this.item_price = item_price;
         this.item_quantity = item_quantity;
+        this.item_id = item_id;
     }
 
     public Product()
@@ -99,4 +100,14 @@ public class Product {
     String item_name;
     String item_price;
     String item_quantity;
+
+    public String getItem_id() {
+        return item_id;
+    }
+
+    public void setItem_id(String item_id) {
+        this.item_id = item_id;
+    }
+
+    String item_id;
 }

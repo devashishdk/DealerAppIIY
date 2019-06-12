@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -53,11 +55,105 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                int flag = 1;
                 String userId = userID.getText().toString();
                 String pass = userPass.getText().toString();
 
-                //register user
-                registerUser(userId,pass);
+                if(TextUtils.isEmpty(userShopName.getText()))
+                {
+                    userShopName.setError("This field is compulsory");
+                    userShopName.requestFocus();
+                    flag = 0;
+                }
+                if(TextUtils.isEmpty(userName.getText()))
+                {
+                    userName.setError("This field is compulsory");
+                    userName.requestFocus();
+                    flag = 0;
+
+                }
+                if(TextUtils.isEmpty(userGST.getText()))
+                {
+                    userGST.setError("This field is compulsory");
+                    userGST.requestFocus();
+                    flag = 0;
+
+                }
+                if(TextUtils.isEmpty(userGST.getText()))
+                {
+                    userGST.setError("This field is compulsory");
+                    userGST.requestFocus();
+                    flag = 0;
+
+                }
+                if(TextUtils.isEmpty(userPhone.getText()))
+                {
+                    userPhone.setError("This field is compulsory");
+                    userPhone.requestFocus();
+                    flag = 0;
+
+                }
+                if(TextUtils.isEmpty(userAddress.getText()))
+                {
+                    userAddress.setError("This field is compulsory");
+                    userAddress.requestFocus();
+                    flag = 0;
+
+                }
+                if(TextUtils.isEmpty(userCity.getText()))
+                {
+                    userCity.setError("This field is compulsory");
+                    userCity.requestFocus();
+                    flag = 0;
+
+                }
+                if(TextUtils.isEmpty(userState.getText()))
+                {
+                    userState.setError("This field is compulsory");
+                    userState.requestFocus();
+                    flag = 0;
+
+                }
+                if(TextUtils.isEmpty(userID.getText()))
+                {
+                    userID.setError("This field is compulsory");
+                    userID.requestFocus();
+                    flag = 0;
+
+                }
+                if(TextUtils.isEmpty(userPass.getText()))
+                {
+                    userPass.setError("Please enter Your Password");
+                    userPass.requestFocus();
+                    flag = 0;
+
+                }
+
+                if(userGST.getText().length() != 15)
+                {
+                    userGST.setError("Enter Correct GST");
+                    userGST.requestFocus();
+                    flag = 0;
+
+                }
+                if(userPhone.getText().length() != 10)
+                {
+                    userPhone.setError("Enter Correct GST");
+                    userPhone.requestFocus();
+                    flag = 0;
+
+                }
+                if(flag == 1) {
+                    pd = new ProgressDialog(SignUpActivity.this);
+                    pd.setCanceledOnTouchOutside(false);
+                    pd.setCancelable(true);
+                    pd.setTitle("Loading....");
+                    pd.setMessage("Please Wait");
+                    pd.show();
+
+                    //register user
+                    registerUser(userId, pass);
+                }
             }
         });
     }
@@ -83,7 +179,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                             HashMap<String, String> userMap = new HashMap<>();
                             userMap.put("name", userName.getText().toString());
-                            userMap.put("phone", userPhone.getText().toString());
+                            userMap.put("mob", userPhone.getText().toString());
                             userMap.put("gst", userGST.getText().toString());
                             userMap.put("address", userAddress.getText().toString());
                             userMap.put("city", userCity.getText().toString());
@@ -93,9 +189,9 @@ public class SignUpActivity extends AppCompatActivity {
                             userMap.put("thumb_image", "default");
                             userMap.put("device_token", device_token);
 
-                            db.collection("Dealers").add(userMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                            db.collection("Dealers").document(current_user.getUid().toString()).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
-                                public void onComplete(@NonNull Task<DocumentReference> task) {
+                                public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
 
                                         pd.dismiss();
@@ -110,8 +206,8 @@ public class SignUpActivity extends AppCompatActivity {
                                     }
                                 }
                             });
-
                         } else {
+                            pd.dismiss();
                             // If sign in fails, display a message to the user.
                             //Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             Toast.makeText(SignUpActivity.this, "Authentication failed.",
@@ -120,6 +216,7 @@ public class SignUpActivity extends AppCompatActivity {
                         }
 
                         // ...
+
 
                     }
 

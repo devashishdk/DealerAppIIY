@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -57,11 +58,13 @@ public class ProfileActivity extends AppCompatActivity {
     //Android Layout
 
     private CircleImageView mDisplayImage;
-    private TextView mName,mMobile;
+    private TextView mName,mMobile,mCity,mState,mShopName,mShopGST,mShopAddress;
 
     private Button mDetailBtn;
     private Button mImageBtn;
 
+    String download_url;
+    String thumb_downloadUrl;
 
     private static final int GALLERY_PICK = 1;
 
@@ -70,6 +73,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private ProgressDialog mProgressDialog;
 
+    ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +83,11 @@ public class ProfileActivity extends AppCompatActivity {
         mDisplayImage = (CircleImageView) findViewById(R.id.settings_image);
         mName = (TextView) findViewById(R.id.settings_name);
         mMobile = (TextView) findViewById(R.id.settings_phone);
+        mShopName = (TextView) findViewById(R.id.shop_name);
+        mCity = (TextView) findViewById(R.id.shop_city);
+        mState = (TextView) findViewById(R.id.shop_state);
+        mShopAddress = (TextView) findViewById(R.id.shop_address);
+        mShopGST = (TextView) findViewById(R.id.shop_gst);
 
         mDetailBtn = (Button) findViewById(R.id.settings_status_btn);
         mImageBtn = (Button) findViewById(R.id.settings_image_btn);
@@ -90,58 +99,37 @@ public class ProfileActivity extends AppCompatActivity {
         String current_uid = mCurrentUser.getUid();
 
 
+        pd = new ProgressDialog(ProfileActivity.this);
+        pd.setCanceledOnTouchOutside(false);
+        pd.setCancelable(true);
+        pd.setTitle("Loading....");
+        pd.setMessage("Please Wait");
+        pd.show();
+
         //mUserDatabase = FirebaseFirestore.getInstance().getReference().child("Users").child(current_uid);
         mUserDatabase = FirebaseFirestore.getInstance();
-
-        final DocumentReference docRef = mUserDatabase.collection("Dealers").document(current_uid);
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        mUserDatabase.collection("Dealers").document(current_uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-
-                if(documentSnapshot.exists()) {
-                    final String image = documentSnapshot.get("image").toString();
-
-                    if (!image.equals("default")) {
-
-                        //Picasso.with(ProfileActivity.this).load(image).placeholder(R.drawable.logo).into(mDisplayImage);
-
-                        Picasso.with(ProfileActivity.this).load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                                .into(mDisplayImage, new Callback() {
-                                    @Override
-                                    public void onSuccess() {
-
-                                    }
-
-                                    @Override
-                                    public void onError() {
-
-                                        Picasso.with(ProfileActivity.this).load(image).into(mDisplayImage);
-
-                                    }
-                                });
-
-                    }
-                }
-                /*
-
-                THIS IS REALTIME CODE, EDIT THIS
-                 */
-
-                /*
-                String name = dataSnapshot.child("name").getValue().toString();
-                final String image = dataSnapshot.child("image").getValue().toString();
-                String phone = dataSnapshot.child("phone").getValue().toString();
-                String hostel = dataSnapshot.child("hostel").getValue().toString();
-                String room = dataSnapshot.child("room").getValue().toString();
-
-                String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot documentSnapshot = task.getResult();
+                final String image = documentSnapshot.get("image").toString();
+                String name = documentSnapshot.get("name").toString();
+                String gst = documentSnapshot.get("gst").toString();
+                String shopname = documentSnapshot.get("shopname").toString();
+                String city = documentSnapshot.get("city").toString();
+                String state = documentSnapshot.get("state").toString();
+                String mob = documentSnapshot.get("mob").toString();
+                String address = documentSnapshot.get("address").toString();
 
                 mName.setText(name);
-                mMobile.setText(phone);
+                mMobile.setText(mob);
+                mShopName.setText(shopname);
+                mCity.setText(city);
+                mState.setText(state);
+                mShopAddress.setText(address);
+                mShopGST.setText(gst);
 
-
-                if(!image.equals("default")) {
-
+                if (!image.equals("default")) {
 
                     //Picasso.with(ProfileActivity.this).load(image).placeholder(R.drawable.logo).into(mDisplayImage);
 
@@ -161,11 +149,10 @@ public class ProfileActivity extends AppCompatActivity {
                             });
 
                 }
-                */
 
+                pd.dismiss();
             }
         });
-
 
         mImageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -262,17 +249,26 @@ public class ProfileActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
                         if(task.isSuccessful()){
-
-                            final String download_url = "";//task.getResult().getDownloadUrl().toString();
-
+                            //final String download_url = task.getResult().getMetadata().getReference().getDownloadUrl().toString();
+                            task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    download_url = uri.toString();
+                                }
+                            });
                             UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
                             uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> thumb_task) {
 
-                                    String thumb_downloadUrl = "";//thumb_task.getResult().getDownloadUrl().toString();
-
                                     if(thumb_task.isSuccessful()){
+
+                                        thumb_task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                thumb_downloadUrl = uri.toString();
+                                            }
+                                        });
 
                                         Map update_hashMap = new HashMap();
                                         update_hashMap.put("image", download_url);

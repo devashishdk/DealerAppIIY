@@ -2,6 +2,7 @@ package com.devashish.erpapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
@@ -39,29 +40,32 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.TestView
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final TestViewHolder holder, int position) {
         Product Product = ProductsList.get(position);
 
         holder.product_name.setText(Product.getItem_name());
-        holder.price.setText(Product.getItem_price() + " ₹");
+        holder.price.setText("₹"+Product.getItem_price());
         holder.mrp.setText(Product.getItem_mrp());
-        holder.discount.setText(Product.getItem_discount());
+        holder.mrp.setPaintFlags(holder.mrp.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+
+        holder.discount.setText(Product.getItem_discount()+"%");
         holder.brand_name.setText(Product.getItem_brand());
         String image = Product.getItem_image();
         Picasso.with(mCtx).load(image).placeholder(R.drawable.shopone).into(holder.product_image);
 
-        /*
-        final String PushId = categoriesList.get(position).getPush_id();
+
+        final String PushId = ProductsList.get(position).getItem_id();
         holder.card_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent mIntent = new Intent(mCtx, MainActivity.class);
+                holder.card_layout.setClickable(false);
+                Intent mIntent = new Intent(mCtx, DescriptionActivity.class);
                 mIntent.putExtra("Key", PushId);
                 mCtx.startActivity(mIntent);
+                holder.card_layout.setClickable(true);
             }
         });
-        */
+
     }
 
     @Override
