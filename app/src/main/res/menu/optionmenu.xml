@@ -8,5 +8,11 @@
         android:iconTint="@android:color/black"
         app:showAsAction="always"
         ></item>
+    <item
+        android:id="@+id/cart"
+        android:icon="@drawable/cart"
+        android:title="Cart"
+        app:showAsAction="always"
+        ></item>
 
 </menu>

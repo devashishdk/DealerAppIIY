@@ -37,14 +37,6 @@ public class SearchActivity extends AppCompatActivity {
         searchButton = (ImageButton) findViewById(R.id.search_button);
         searchtext = (EditText) findViewById(R.id.search_text);
 
-        pd = new ProgressDialog(SearchActivity.this);
-        pd.setCanceledOnTouchOutside(false);
-        pd.setCancelable(true);
-        pd.setTitle("Loading....");
-        pd.setMessage("Please Wait");
-        pd.show();
-
-
 
         mProductList = (RecyclerView) findViewById(R.id.product_list);
         mProductList.setHasFixedSize(true);
@@ -58,10 +50,18 @@ public class SearchActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
+
+                pd = new ProgressDialog(SearchActivity.this);
+                pd.setCanceledOnTouchOutside(false);
+                pd.setCancelable(true);
+                pd.setTitle("Loading....");
+                pd.setMessage("Please Wait");
+                pd.show();
                 db.collection("AllItems").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()){
+                            ProductList.clear();
                             for (QueryDocumentSnapshot doc : task.getResult()){
                                 Product p = doc.toObject(Product.class);
                                 ProductList.add(p);
@@ -75,7 +75,6 @@ public class SearchActivity extends AppCompatActivity {
                             {
                                 pd.dismiss();
                             }
-
                         }
                     }
                 });

@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,29 +25,29 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder>{
+public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder>{
 
     Context mCtx;
     List<Order> OrderList;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    OrderAdapter(Context mCtx, List<Order> OrderList)
+    CartAdapter(Context mCtx, List<Order> OrderList)
     {
         this.mCtx = mCtx;
         this.OrderList = OrderList;
     }
     @NonNull
     @Override
-    public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(mCtx).inflate(R.layout.single_layout_order,
+        View view = LayoutInflater.from(mCtx).inflate(R.layout.single_cart_layout,
                 parent, false);
-        OrderViewHolder OrderViewHolder = new OrderViewHolder(view);
-        return OrderViewHolder;
+        CartViewHolder CartViewHolder = new CartViewHolder(view);
+        return CartViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final OrderViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final CartViewHolder holder, final int position) {
         final Order Order = OrderList.get(position);
         holder.price.setText("₹"+Order.getProduct_price());
         holder.orderid.setText(Order.getProduct_id());
@@ -73,7 +74,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             public void onClick(View v) {
                 holder.cancelButton.setClickable(false);
                 holder.cancelButton.setText("CANCELED");
-                db.collection("Users").document(Order.getDealer_id()).collection("Orders").document(Order.getProduct_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                db.collection("Users").document(Order.getDealer_id()).collection("Cart").document(Order.getProduct_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful())
@@ -84,6 +85,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                 });
             }
         });
+
     }
 
     @Override
@@ -91,14 +93,14 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         return OrderList.size();
     }
 
-    class OrderViewHolder extends RecyclerView.ViewHolder
+    class CartViewHolder extends RecyclerView.ViewHolder
     {
         ImageView imageView;
         TextView name,price,quantity,orderid,status;
         CardView card_layout;
         //AppCompatRatingBar ratingBar;
         Button callButton,billButton,cancelButton,ratingButton;
-        public OrderViewHolder(View itemView) {
+        public CartViewHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.Order_image);
 

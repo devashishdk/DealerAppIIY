@@ -29,7 +29,12 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".OrderConfirmedActivity" />
         <activity android:name=".OrdersActivity" />
-        <activity android:name=".SearchActivity"></activity>
+        <activity android:name=".SearchActivity" />
+        <activity android:name=".FilterActivity" />
+        <activity android:name=".FilteredDisplayActivity" />
+        <activity android:name=".CartActivity" />
+        <activity android:name=".CategoryItemDisplayActivity" />
+        <activity android:name=".ImageDisplayActivity"></activity>
     </application>
 
 </manifest>

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Paint;
 import android.media.Image;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -38,7 +39,7 @@ public class DescriptionActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseUser firebaseUser;
     TextView name,price,mrp,brand,quantity,description,savings;
-    Button orderButton;
+    Button orderButton,cartButton;
     ImageButton addQ,delQ;
     LinearLayout description_view;
     HashMap<String,String> hashMap;
@@ -61,6 +62,8 @@ public class DescriptionActivity extends AppCompatActivity {
         description_view = (LinearLayout) findViewById(R.id.description_view);
         description_view.setVisibility(View.GONE);
         orderButton = (Button) findViewById(R.id.orderButton);
+        cartButton = (Button) findViewById(R.id.cartButton);
+
         name = (TextView) findViewById(R.id.name);
         price = (TextView) findViewById(R.id.price);
         mrp = (TextView) findViewById(R.id.mrp);
@@ -74,7 +77,8 @@ public class DescriptionActivity extends AppCompatActivity {
         viewPager = (ViewPager)findViewById(R.id.viewPager);
         myCustomPagerAdapter = new MyCustomPagerAdapter(DescriptionActivity.this, images);
         viewPager.setAdapter(myCustomPagerAdapter);
-
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabDots);
+        tabLayout.setupWithViewPager(viewPager, true);
         addQ.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -123,6 +127,55 @@ public class DescriptionActivity extends AppCompatActivity {
         });
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        cartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cartButton.setClickable(false);
+                pd = new ProgressDialog(DescriptionActivity.this);
+                pd.setCanceledOnTouchOutside(false);
+                pd.setCancelable(true);
+                pd.setTitle("Loading....");
+                pd.setMessage("Please Wait");
+                pd.show();
+
+                hashMap = new HashMap<String, String>();
+                hashMap.put("product_name",name.getText().toString());
+                hashMap.put("dealer_id",firebaseUser.getUid());
+                hashMap.put("product_id",product_id);
+                hashMap.put("status","Pending");
+                hashMap.put("product_name",product_name);
+                hashMap.put("product_price",String.valueOf(Integer.parseInt(product_price) * Integer.parseInt(quantity.getText().toString())));
+                hashMap.put("product_image",image);
+                hashMap.put("quantity",quantity.getText().toString());
+
+                db.collection("Users").document(firebaseUser.getUid().toString()).collection("Cart").document(product_id).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful())
+                        {
+                            String message = "You just received an order from "+firebaseUser.getUid().toString()+ " \n\nPRODUCT NAME : "+product_name + "\nQuantity : "+quantity.getText().toString();
+                            //SendMail sm = new SendMail(DescriptionActivity.this, "devashisht2914@gmail.com", "ORDER FROM "+firebaseUser.getUid().toString(), message);
+                            //Executing sendmail to send email
+                            //sm.execute();
+                            Toast.makeText(DescriptionActivity.this,"ADDED TO CART",Toast.LENGTH_LONG).show();
+                            pd.dismiss();
+                            //Intent intent = new Intent(DescriptionActivity.this,OrderConfirmedActivity.class);
+                            //startActivity(intent);
+                            //finish();
+                        }
+                        else
+                        {
+                            pd.dismiss();
+                            cartButton.setClickable(true);
+                            Toast.makeText(DescriptionActivity.this,"FAIL",Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
+            }
+        });
+
         orderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,15 +197,14 @@ public class DescriptionActivity extends AppCompatActivity {
                 hashMap.put("product_image",image);
                 hashMap.put("quantity",quantity.getText().toString());
 
-                db.collection("Orders").add(hashMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                db.collection("AllOrders").add(hashMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
                             if(task.isSuccessful())
                             {
-                                db.collection("Dealers").document(firebaseUser.getUid().toString()).collection("Orders").add(hashMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                db.collection("Users").document(firebaseUser.getUid().toString()).collection("Orders").document(product_id).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
-                                    public void onComplete(@NonNull Task<DocumentReference> task) {
-
+                                    public void onComplete(@NonNull Task<Void> task) {
                                         String message = "You just received an order from "+firebaseUser.getUid().toString()+ " \n\nPRODUCT NAME : "+product_name + "\nQuantity : "+quantity.getText().toString();
                                         SendMail sm = new SendMail(DescriptionActivity.this, "devashisht2914@gmail.com", "ORDER FROM "+firebaseUser.getUid().toString(), message);
                                         //Executing sendmail to send email
@@ -162,10 +214,8 @@ public class DescriptionActivity extends AppCompatActivity {
                                         Intent intent = new Intent(DescriptionActivity.this,OrderConfirmedActivity.class);
                                         startActivity(intent);
                                         finish();
-
                                     }
                                 });
-
                             }
                             else
                             {

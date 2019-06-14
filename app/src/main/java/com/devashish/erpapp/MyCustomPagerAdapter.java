@@ -1,13 +1,19 @@
 package com.devashish.erpapp;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.github.chrisbanes.photoview.PhotoView;
+import com.github.chrisbanes.photoview.PhotoViewAttacher;
 
 public class MyCustomPagerAdapter extends PagerAdapter{
     Context context;
@@ -33,18 +39,26 @@ public class MyCustomPagerAdapter extends PagerAdapter{
 
     @Override
     public Object instantiateItem(ViewGroup container, final int position) {
-        View itemView = layoutInflater.inflate(R.layout.item, container, false);
+        final View itemView = layoutInflater.inflate(R.layout.item, container, false);
 
-        ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
+        PhotoView imageView = (PhotoView) itemView.findViewById(R.id.imageView);
         imageView.setImageResource(images[position]);
-
         container.addView(itemView);
 
         //listening to image click
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "you clicked image " + (position + 1), Toast.LENGTH_LONG).show();
+                /*
+                Dialog settingsDialog = new Dialog(context);
+                settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+                settingsDialog.setContentView(inflater.inflate(R.layout.image_layout
+                        , null));
+                settingsDialog.show();
+                */
+                Intent intent = new Intent(context,ImageDisplayActivity.class);
+                context.startActivity(intent);
             }
         });
 

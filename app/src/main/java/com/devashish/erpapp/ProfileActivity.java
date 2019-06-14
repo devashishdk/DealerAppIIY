@@ -108,25 +108,27 @@ public class ProfileActivity extends AppCompatActivity {
 
         //mUserDatabase = FirebaseFirestore.getInstance().getReference().child("Users").child(current_uid);
         mUserDatabase = FirebaseFirestore.getInstance();
-        mUserDatabase.collection("Dealers").document(current_uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        mUserDatabase.collection("Users").document(current_uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 DocumentSnapshot documentSnapshot = task.getResult();
-                final String image = documentSnapshot.get("image").toString();
-                String name = documentSnapshot.get("name").toString();
+                final String image = documentSnapshot.get("profile_pic").toString();
+                String first_name = documentSnapshot.get("first_name").toString();
+                String last_name = documentSnapshot.get("last_name").toString();
+                String name = first_name + " " +last_name;
                 String gst = documentSnapshot.get("gst").toString();
-                String shopname = documentSnapshot.get("shopname").toString();
-                String city = documentSnapshot.get("city").toString();
-                String state = documentSnapshot.get("state").toString();
+                String shopname = documentSnapshot.get("company").toString();
+                String city = documentSnapshot.get("address1").toString();
+                String state = documentSnapshot.get("address2").toString();
                 String mob = documentSnapshot.get("mob").toString();
-                String address = documentSnapshot.get("address").toString();
+                //String address = documentSnapshot.get("address").toString();
 
                 mName.setText(name);
                 mMobile.setText(mob);
                 mShopName.setText(shopname);
                 mCity.setText(city);
                 mState.setText(state);
-                mShopAddress.setText(address);
+                //mShopAddress.setText(address);
                 mShopGST.setText(gst);
 
                 if (!image.equals("default")) {
@@ -271,10 +273,10 @@ public class ProfileActivity extends AppCompatActivity {
                                         });
 
                                         Map update_hashMap = new HashMap();
-                                        update_hashMap.put("image", download_url);
-                                        update_hashMap.put("thumb_image", thumb_downloadUrl);
+                                        update_hashMap.put("profile_pic", download_url);
+                                        update_hashMap.put("profile_thumbUrl", thumb_downloadUrl);
 
-                                        mUserDatabase.collection("Dealers").document(current_user_id).update(update_hashMap).addOnCompleteListener(new OnCompleteListener() {
+                                        mUserDatabase.collection("Users").document(current_user_id).update(update_hashMap).addOnCompleteListener(new OnCompleteListener() {
                                             @Override
                                             public void onComplete(@NonNull Task task) {
                                                 if(task.isSuccessful()){

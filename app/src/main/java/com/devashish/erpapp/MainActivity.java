@@ -50,7 +50,11 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mProductList;
     List<Product> ProductList;
     ProductAdapter productAdapter;
-    CardView sortCard;
+
+    RecyclerView mCategoryList;
+    List<Category> CategoryList;
+    CategoryAdapter CategoryAdapter;
+    CardView sortCard,filterCard,categoryCard;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     ProgressDialog pd;
     private FirebaseAuth mAuth;
@@ -79,6 +83,9 @@ public class MainActivity extends AppCompatActivity {
         setUpToolBar();
 
         sortCard = (CardView) findViewById(R.id.sort_card);
+        filterCard = (CardView) findViewById(R.id.filter_card);
+        categoryCard = (CardView) findViewById(R.id.categoryCard);
+
         navigationView = (NavigationView) findViewById(R.id.navigationView);
 
         navigationView.setItemIconTintList(null);
@@ -121,8 +128,8 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case (R.id.Orders):
                         drawerLayout.closeDrawers();
-                        Intent intentOrder = new Intent(MainActivity.this,OrdersActivity.class);
-                        startActivity(intentOrder);
+                        Intent intentCategory = new Intent(MainActivity.this,OrdersActivity.class);
+                        startActivity(intentCategory);
                         //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
                         break;
                     case  (R.id.logout):
@@ -136,6 +143,36 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+
+        mCategoryList = (RecyclerView) findViewById(R.id.category_list);
+        mCategoryList.setHasFixedSize(false);
+        mCategoryList.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+
+        CategoryList = new ArrayList<>();
+
+        db.collection("Categories").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot doc : task.getResult()){
+                        Category p = doc.toObject(Category.class);
+                        CategoryList.add(p);
+                    }
+
+                    CategoryAdapter = new CategoryAdapter(MainActivity.this, CategoryList);
+                    mCategoryList.setAdapter(CategoryAdapter);
+
+                    //If ProgressDialog is showing Dismiss it
+                    if(pd.isShowing())
+                    {
+                        pd.dismiss();
+                    }
+
+                }
+            }
+        });
+
 
 
         mProductList = (RecyclerView) findViewById(R.id.product_list);
@@ -166,6 +203,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        filterCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,FilterActivity.class);
+                startActivity(intent);
+            }
+        });
         sortCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -219,6 +263,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        categoryCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mCategoryList.isShown()){
+                    mCategoryList.setVisibility(View.GONE);
+                }
+                else{
+                    mCategoryList.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
     }
 
     @Override
@@ -233,6 +289,10 @@ public class MainActivity extends AppCompatActivity {
             case (R.id.search):
                 Intent intent = new Intent(MainActivity.this,SearchActivity.class);
                 startActivity(intent);
+                break;
+            case (R.id.cart):
+                Intent intentC = new Intent(MainActivity.this,CartActivity.class);
+                startActivity(intentC);
                 break;
         }
         return true;

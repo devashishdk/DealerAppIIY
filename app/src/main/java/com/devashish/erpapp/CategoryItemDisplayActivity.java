@@ -1,19 +1,15 @@
 package com.devashish.erpapp;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.widget.CompoundButton;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -21,51 +17,46 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrdersActivity extends AppCompatActivity {
+public class CategoryItemDisplayActivity extends AppCompatActivity {
 
-
-    RecyclerView mOrderList;
-    List<Order> OrderList;
-    OrderAdapter OrderAdapter;
-    private FirebaseAuth mAuth;
+    RecyclerView mProductList;
+    List<Product> ProductList;
+    ProductAdapter productAdapter;
     ProgressDialog pd;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    FirebaseUser firebaseUser;
     Toolbar toolbar;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_orders);
+        setContentView(R.layout.activity_category_item_display);
 
         setUpToolBar();
 
-        pd = new ProgressDialog(OrdersActivity.this);
+        pd = new ProgressDialog(CategoryItemDisplayActivity.this);
         pd.setCanceledOnTouchOutside(false);
+        pd.setCancelable(true);
         pd.setTitle("Loading....");
         pd.setMessage("Please Wait");
         pd.show();
 
+        String key = getIntent().getStringExtra("Key");
+        mProductList = (RecyclerView) findViewById(R.id.product_list);
+        mProductList.setHasFixedSize(true);
+        mProductList.setLayoutManager(new GridLayoutManager(this, 2));
 
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        ProductList = new ArrayList<>();
 
-
-        mOrderList = (RecyclerView) findViewById(R.id.order_list);
-        mOrderList.setHasFixedSize(false);
-        mOrderList.setLayoutManager(new LinearLayoutManager(this));
-
-        OrderList = new ArrayList<>();
-
-        db.collection("Users").document(firebaseUser.getUid().toString()).collection("Orders").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("AllItems").whereEqualTo("item_category",key).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
                     for (QueryDocumentSnapshot doc : task.getResult()){
-                        Order p = doc.toObject(Order.class);
-                        OrderList.add(p);
+                        Product p = doc.toObject(Product.class);
+                        ProductList.add(p);
                     }
 
-                    OrderAdapter = new OrderAdapter(OrdersActivity.this, OrderList);
-                    mOrderList.setAdapter(OrderAdapter);
+                    productAdapter = new ProductAdapter(CategoryItemDisplayActivity.this, ProductList);
+                    mProductList.setAdapter(productAdapter);
 
                     //If ProgressDialog is showing Dismiss it
                     if(pd.isShowing())
@@ -76,6 +67,7 @@ public class OrdersActivity extends AppCompatActivity {
                 }
             }
         });
+
 
     }
 
