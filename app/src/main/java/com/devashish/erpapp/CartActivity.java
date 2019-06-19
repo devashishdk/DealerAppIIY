@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +42,7 @@ public class CartActivity extends AppCompatActivity {
     TextView totalprice;
     Button orderButton;
     HashMap<String,String> hashMap;
+    LinearLayout savedLinear;
     int price;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,15 @@ public class CartActivity extends AppCompatActivity {
         pd.setMessage("Please Wait");
         pd.show();
 
+        savedLinear = (LinearLayout) findViewById(R.id.savedProducts);
+
+        savedLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CartActivity.this,SavedActivity.class);
+                startActivity(intent);
+            }
+        });
         totalprice = (TextView) findViewById(R.id.totalPrice);
         orderButton = (Button) findViewById(R.id.orderButton);
 

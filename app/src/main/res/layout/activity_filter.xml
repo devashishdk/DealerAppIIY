@@ -1,65 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout
+    android:id="@+id/drawerlayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FilterActivity"
     android:background="@android:color/white">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_margin="5dp"
-        android:layout_above="@id/filter_button"
-        android:layout_alignParentTop="true">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Clothes"
-            android:textSize="22sp"
-            android:layout_marginLeft="10dp"
-            android:textStyle="bold"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:textSize="18sp"
-            android:text="Price" />
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="5dp">
-            <EditText
-                android:id="@+id/price_low"
+            android:layout_height="wrap_content">
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Lowest"
-                android:layout_weight="1"/>
-            <EditText
-                android:id="@+id/price_high"
+                android:orientation="vertical"
+                android:layout_above="@id/filter_button"
+                android:layout_alignParentTop="true">
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorPrimary"
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                    android:elevation="40dp"
+                    app:cardCornerRadius="10dp"
+                    >
+
+                    <com.devashish.erpapp.MyTextView
+                        android:id="@+id/toolbar_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="ERP"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp" />
+                </android.support.v7.widget.Toolbar>
+
+                <com.devashish.erpapp.MyTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clothes"
+                    style="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="22sp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:textStyle="bold"/>
+                <com.devashish.erpapp.MyTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    style="@style/TextAppearance.AppCompat.Subhead"
+                    android:layout_marginTop="10dp"
+                    android:textSize="16sp"
+                    android:text="Price" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="5dp">
+                    <com.devashish.erpapp.MyEditText
+                        android:id="@+id/price_low"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Lowest"
+                        android:text="0"
+                        android:layout_weight="1"/>
+                    <com.devashish.erpapp.MyEditText
+                        android:id="@+id/price_high"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Highest"
+                        android:text="100000"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+                <com.devashish.erpapp.MyTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    style="@style/TextAppearance.AppCompat.Subhead"
+                    android:layout_marginTop="10dp"
+                    android:textSize="16sp"
+                    android:text="Brand" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/category_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:visibility="visible"
+                    android:layout_marginBottom="10dp"
+                    />
+
+            </LinearLayout>
+            <Button
+                android:id="@+id/filter_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Highest"
-                android:layout_weight="1"/>
-        </LinearLayout>
-    </LinearLayout>
-    <Button
-        android:id="@+id/filter_button"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:text="FILTER"
+                android:textSize="16sp"
+                android:background="@drawable/outline_button"
+                android:layout_alignParentBottom="true"
+                android:textColor="@color/colorPrimary"/>
+        </RelativeLayout>
+    <android.support.design.widget.NavigationView
+        android:id="@+id/navigationView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:text="FILTER"
-        android:textSize="16sp"
-        android:background="@drawable/outline_button"
-        android:layout_alignParentBottom="true"
-        android:textColor="@color/colorPrimary"/>
-</RelativeLayout>
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:menu = "@menu/drawer_menu"
+        app:headerLayout="@layout/header"
+        >
+    </android.support.design.widget.NavigationView>
+</android.support.v4.widget.DrawerLayout>

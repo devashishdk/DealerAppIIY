@@ -37,6 +37,7 @@ public class FilteredDisplayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_filtered_display);
 
         final HashMap<String, Integer> hashMapObject = (HashMap<String, Integer>) getIntent().getSerializableExtra("map");
+        String brand = getIntent().getStringExtra("brand");
 
         pd = new ProgressDialog(FilteredDisplayActivity.this);
         pd.setCanceledOnTouchOutside(false);
@@ -53,7 +54,7 @@ public class FilteredDisplayActivity extends AppCompatActivity {
 
         ProductList = new ArrayList<>();
 
-        db.collection("AllItems").whereGreaterThan("item_price",hashMapObject.get("price_low")).whereLessThan("item_price",hashMapObject.get("price_high")).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("AllItems").whereEqualTo("item_brand","Huawei").whereGreaterThan("item_price",hashMapObject.get("price_low")).whereLessThan("item_price",hashMapObject.get("price_high")).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
@@ -71,6 +72,9 @@ public class FilteredDisplayActivity extends AppCompatActivity {
                         pd.dismiss();
                     }
 
+                }
+                else {
+                    pd.dismiss();
                 }
             }
         });

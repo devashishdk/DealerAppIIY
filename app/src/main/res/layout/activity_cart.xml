@@ -31,6 +31,38 @@
                 android:textSize="16sp" />
         </android.support.v7.widget.Toolbar>
 
+        <LinearLayout
+            android:id="@+id/savedProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryDark"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/save"
+                android:tint="@android:color/white" />
+
+            <com.devashish.erpapp.MyTextView
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="Check Saved Products"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+        </LinearLayout>
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/order_list"
             android:layout_width="match_parent"

@@ -44,11 +44,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.TestView
         Product Product = ProductsList.get(position);
 
         holder.product_name.setText(Product.getItem_name());
-        holder.price.setText("₹"+Product.getItem_price());
-        holder.mrp.setText(Product.getItem_mrp());
+        holder.price.setText("₹"+String.valueOf(Product.getItem_price()));
+        holder.mrp.setText(String.valueOf(String.valueOf(Product.getItem_mrp())));
         holder.mrp.setPaintFlags(holder.mrp.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
-        holder.discount.setText(Product.getItem_discount()+"%");
+        holder.discount.setText(String.valueOf(Product.getItem_discount())+"%");
         holder.brand_name.setText(Product.getItem_brand());
         String image = Product.getItem_image();
         Picasso.with(mCtx).load(image).placeholder(R.drawable.shopone).into(holder.product_image);

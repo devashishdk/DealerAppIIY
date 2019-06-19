@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.devashish.erpapp">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,6 +14,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name="com.paytm.pgsdk.PaytmPGActivity"
+            android:configChanges="keyboardHidden|orientation|keyboard"
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
@@ -34,7 +43,9 @@
         <activity android:name=".FilteredDisplayActivity" />
         <activity android:name=".CartActivity" />
         <activity android:name=".CategoryItemDisplayActivity" />
-        <activity android:name=".ImageDisplayActivity"></activity>
+        <activity android:name=".ImageDisplayActivity" />
+        <activity android:name=".checksum" />
+        <activity android:name=".SavedActivity"></activity>
     </application>
 
 </manifest>

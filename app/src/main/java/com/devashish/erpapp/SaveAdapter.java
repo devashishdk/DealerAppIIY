@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,33 +22,29 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
-import java.util.HashMap;
 import java.util.List;
 
-public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder>{
+public class SaveAdapter extends RecyclerView.Adapter<SaveAdapter.OrderViewHolder>{
 
     Context mCtx;
     List<Order> OrderList;
-    HashMap<String,String> hashMap;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    CartAdapter(Context mCtx, List<Order> OrderList)
+    SaveAdapter(Context mCtx, List<Order> OrderList)
     {
         this.mCtx = mCtx;
         this.OrderList = OrderList;
     }
     @NonNull
     @Override
-    public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
-        View view = LayoutInflater.from(mCtx).inflate(R.layout.single_cart_layout,
+    public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(mCtx).inflate(R.layout.single_save_layout,
                 parent, false);
-        CartViewHolder CartViewHolder = new CartViewHolder(view);
-        return CartViewHolder;
+        OrderViewHolder OrderViewHolder = new OrderViewHolder(view);
+        return OrderViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final CartViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final OrderViewHolder holder, final int position) {
         final Order Order = OrderList.get(position);
         holder.price.setText("₹"+Order.getProduct_price());
         holder.orderid.setText(Order.getProduct_id());
@@ -75,8 +70,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             @Override
             public void onClick(View v) {
                 holder.cancelButton.setClickable(false);
-                holder.cancelButton.setText("DELETED");
-                db.collection("Users").document(Order.getDealer_id()).collection("Cart").document(Order.getProduct_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                holder.cancelButton.setText("CANCELED");
+                db.collection("Users").document(Order.getDealer_id()).collection("Saved").document(Order.getProduct_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful())
@@ -87,43 +82,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 });
             }
         });
-
-        hashMap = new HashMap<String, String>();
-        hashMap = new HashMap<String, String>();
-        hashMap.put("product_name",Order.getProduct_name());
-        hashMap.put("dealer_id",Order.getDealer_id());
-        hashMap.put("product_id",Order.getProduct_id());
-        hashMap.put("status","Pending");
-        hashMap.put("product_price",String.valueOf(Integer.parseInt(Order.getProduct_price()) * Integer.parseInt(Order.getQuantity())));
-        hashMap.put("product_image",Order.getProduct_image());
-        hashMap.put("quantity",Order.getQuantity());
-
-        holder.saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                holder.saveButton.setClickable(false);
-                holder.saveButton.setText("SAVED");
-                holder.card_layout.setClickable(false);
-                final String product_id = OrderList.get(position).getProduct_id();
-                    db.collection("Users").document(Order.getDealer_id()).collection("Saved").document(product_id).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful())
-                            {
-                                Toast.makeText(mCtx,"MOVED TO SAVED",Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
-                db.collection("Users").document(Order.getDealer_id()).collection("Cart").document(product_id).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(mCtx, "DELETED CART", Toast.LENGTH_LONG).show();
-                    }
-                });
-
-            }
-        });
-
     }
 
     @Override
@@ -131,14 +89,14 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         return OrderList.size();
     }
 
-    class CartViewHolder extends RecyclerView.ViewHolder
+    class OrderViewHolder extends RecyclerView.ViewHolder
     {
         ImageView imageView;
         TextView name,price,quantity,orderid,status;
         CardView card_layout;
         //AppCompatRatingBar ratingBar;
-        Button saveButton,billButton,cancelButton,ratingButton;
-        public CartViewHolder(View itemView) {
+        Button callButton,orderButton,cancelButton,ratingButton;
+        public OrderViewHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.Order_image);
 
@@ -151,7 +109,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             price = (TextView) itemView.findViewById(R.id.product_price);
             status = (TextView) itemView.findViewById(R.id.status);
             cancelButton = (Button) itemView.findViewById(R.id.cancelButton);
-            saveButton = (Button) itemView.findViewById(R.id.saveButton);
+            orderButton = (Button) itemView.findViewById(R.id.orderButton);
             //ratingBar = (AppCompatRatingBar) itemView.findViewById(R.id.ratingBarMain);
         }
     }

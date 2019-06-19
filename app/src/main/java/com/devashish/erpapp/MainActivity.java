@@ -173,8 +173,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
         mProductList = (RecyclerView) findViewById(R.id.product_list);
         mProductList.setHasFixedSize(true);
         mProductList.setLayoutManager(new GridLayoutManager(this, 2));

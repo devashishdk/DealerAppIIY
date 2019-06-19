@@ -1,17 +1,28 @@
 package com.devashish.erpapp;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.media.Image;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -31,6 +42,10 @@ import java.util.HashMap;
 
 public class DescriptionActivity extends AppCompatActivity {
 
+    DrawerLayout drawerLayout;
+    ActionBarDrawerToggle actionBarDrawerToggle;
+    NavigationView navigationView;
+
     ViewPager viewPager;
     int images[] = {R.drawable.shopone,R.drawable.shopone};
     MyCustomPagerAdapter myCustomPagerAdapter;
@@ -44,6 +59,15 @@ public class DescriptionActivity extends AppCompatActivity {
     LinearLayout description_view;
     HashMap<String,String> hashMap;
     String product_name,product_mrp,product_price,product_brand,image,product_id,product_description;
+
+    private void applyFontToMenuItem(MenuItem mi) {
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/font_app.ttf");
+        SpannableString mNewTitle = new SpannableString(mi.getTitle());
+        mNewTitle.setSpan(new CustomTypefaceSpan("" , font), 0 , mNewTitle.length(),  Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        mi.setTitle(mNewTitle);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,6 +155,12 @@ public class DescriptionActivity extends AppCompatActivity {
         cartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (ContextCompat.checkSelfPermission(DescriptionActivity.this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(DescriptionActivity.this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS}, 101);
+                }
+
+
                 cartButton.setClickable(false);
                 pd = new ProgressDialog(DescriptionActivity.this);
                 pd.setCanceledOnTouchOutside(false);
@@ -211,7 +241,12 @@ public class DescriptionActivity extends AppCompatActivity {
                                         sm.execute();
                                         Toast.makeText(DescriptionActivity.this,"SUCCESS",Toast.LENGTH_LONG).show();
                                         pd.dismiss();
-                                        Intent intent = new Intent(DescriptionActivity.this,OrderConfirmedActivity.class);
+
+
+                                        Intent intent = new Intent(DescriptionActivity.this,checksum.class);
+                                        intent.putExtra("orderid", "123");
+                                        intent.putExtra("custid", "211");
+                                        intent.putExtra("price",product_price);
                                         startActivity(intent);
                                         finish();
                                     }
@@ -227,21 +262,101 @@ public class DescriptionActivity extends AppCompatActivity {
                 });
             }
         });
+
+
+        navigationView = (NavigationView) findViewById(R.id.navigationView);
+
+        navigationView.setItemIconTintList(null);
+        Menu m = navigationView.getMenu();
+        for (int i=0;i<m.size();i++) {
+            MenuItem mi = m.getItem(i);
+
+            //for aapplying a font to subMenu ...
+            SubMenu subMenu = mi.getSubMenu();
+            if (subMenu!=null && subMenu.size() >0 ) {
+                for (int j=0; j <subMenu.size();j++) {
+                    MenuItem subMenuItem = subMenu.getItem(j);
+                    applyFontToMenuItem(subMenuItem);
+                }
+            }
+
+            //the method we have create in activity
+            applyFontToMenuItem(mi);
+        }
+
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch (item.getItemId())
+                {
+                    case (R.id.home):
+                        drawerLayout.closeDrawers();
+                        Intent intent = new Intent(DescriptionActivity.this,MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                        //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        break;
+                    case (R.id.profile):
+                        drawerLayout.closeDrawers();
+                        Intent intentPro = new Intent(DescriptionActivity.this,ProfileActivity.class);
+                        startActivity(intentPro);
+                        //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        break;
+                    case (R.id.Orders):
+                        drawerLayout.closeDrawers();
+                        Intent intentCategory = new Intent(DescriptionActivity.this,OrdersActivity.class);
+                        startActivity(intentCategory);
+                        //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        break;
+                    case  (R.id.logout):
+                        drawerLayout.closeDrawers();
+                        FirebaseAuth.getInstance().signOut();
+                        Intent intentL = new Intent(DescriptionActivity.this,LoginActivity.class);
+                        startActivity(intentL);
+                        finish();
+                        break;
+                }
+                return false;
+            }
+        });
+
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.optionmenu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case (R.id.search):
+                Intent intent = new Intent(DescriptionActivity.this,SearchActivity.class);
+                startActivity(intent);
+                break;
+            case (R.id.cart):
+                Intent intentC = new Intent(DescriptionActivity.this,CartActivity.class);
+                startActivity(intentC);
+                break;
+        }
+        return true;
     }
 
     void setUpToolBar()
     {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawerlayout);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        actionBarDrawerToggle =  new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.app_name,R.string.app_name);
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+    }
 
-    }
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
 
 }
