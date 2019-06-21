@@ -118,7 +118,6 @@ public class FilterActivity extends AppCompatActivity {
             }
         });
 
-
         price_high = (EditText) findViewById(R.id.price_high);
         price_low = (EditText) findViewById(R.id.price_low);
         filterButton = (Button) findViewById(R.id.filter_button);
@@ -127,11 +126,17 @@ public class FilterActivity extends AppCompatActivity {
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ArrayList<String> arr = new ArrayList<String>();
+                for (Product model : BrandList) {
+                    if (model.getSelected()) {
+                        arr.add(model.getItem_brand());
+                    }
+                }
                 hm.put("price_low",price_low.getText().toString().equals("") ? 0 : Integer.parseInt(price_low.getText().toString()));
                 hm.put("price_high",price_high.getText().toString().equals("") ? Integer.MAX_VALUE :Integer.parseInt(price_high.getText().toString()));
                 Intent intent = new Intent(FilterActivity.this,FilteredDisplayActivity.class);
                 intent.putExtra("map",hm);
-                intent.putExtra("brand",brandSelection);
+                intent.putExtra("brand",arr);
                 startActivity(intent);
 
             }

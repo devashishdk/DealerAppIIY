@@ -83,7 +83,7 @@ public class Product {
     {
 
     }
-    public Product(String item_brand, String item_category, String item_desc, int item_discount, String item_image, int item_mrp, String item_name, int item_price, int item_quantity,String item_id) {
+    public Product(String item_brand, String item_category, String item_desc, int item_discount, String item_image, int item_mrp, String item_name, int item_price, int item_quantity,String item_id,Boolean isSelected) {
 
         this.item_brand = item_brand;
         this.item_category = item_category;
@@ -95,6 +95,7 @@ public class Product {
         this.item_price = item_price;
         this.item_quantity = item_quantity;
         this.item_id = item_id;
+        this.isSelected = isSelected;
     }
 
     String item_image;
@@ -104,6 +105,15 @@ public class Product {
     int item_quantity;
     String item_id;
 
+    public Boolean getSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(Boolean selected) {
+        isSelected = selected;
+    }
+
+    Boolean isSelected = false;
     public String getItem_id() {
         return item_id;
     }

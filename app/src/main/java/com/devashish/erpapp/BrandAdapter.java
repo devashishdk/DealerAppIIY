@@ -46,24 +46,20 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.TestViewHold
     @Override
     public void onBindViewHolder(@NonNull final TestViewHolder holder, int position) {
         final Product Brand = BrandsList.get(position);
-
         holder.name.setText(Brand.getItem_brand());
-
-
         holder.card_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent("custom-message");
-                //            intent.putExtra("quantity",Integer.parseInt(quantity.getText().toString()));
-                intent.putExtra("selected",Brand.getItem_brand());
-                LocalBroadcastManager.getInstance(mCtx).sendBroadcast(intent);
+                Brand.setSelected(!Brand.getSelected());
+                holder.card_layout.setBackgroundColor(Brand.getSelected() ? Color.parseColor("#3F51B5") : Color.WHITE);
+                holder.name.setTextColor(Brand.getSelected() ? Color.WHITE : Color.BLACK);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return BrandsList.size();
+        return BrandsList == null ? 0 :BrandsList.size();
     }
 
     class TestViewHolder extends RecyclerView.ViewHolder

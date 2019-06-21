@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -37,8 +38,8 @@ public class FilteredDisplayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_filtered_display);
 
         final HashMap<String, Integer> hashMapObject = (HashMap<String, Integer>) getIntent().getSerializableExtra("map");
-        String brand = getIntent().getStringExtra("brand");
-
+        ArrayList<String> brand = (ArrayList<String>) getIntent().getSerializableExtra("brand");
+        Toast.makeText(FilteredDisplayActivity.this,brand.toString(),Toast.LENGTH_LONG).show();
         pd = new ProgressDialog(FilteredDisplayActivity.this);
         pd.setCanceledOnTouchOutside(false);
         pd.setCancelable(true);
@@ -54,7 +55,7 @@ public class FilteredDisplayActivity extends AppCompatActivity {
 
         ProductList = new ArrayList<>();
 
-        db.collection("AllItems").whereEqualTo("item_brand","Huawei").whereGreaterThan("item_price",hashMapObject.get("price_low")).whereLessThan("item_price",hashMapObject.get("price_high")).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("AllItems").whereEqualTo("item_brand",brand.get(0)).whereGreaterThan("item_price",hashMapObject.get("price_low")).whereLessThan("item_price",hashMapObject.get("price_high")).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
