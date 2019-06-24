@@ -258,6 +258,7 @@ public class ProfileActivity extends AppCompatActivity {
                                     download_url = uri.toString();
                                 }
                             });
+
                             UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
                             uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                 @Override

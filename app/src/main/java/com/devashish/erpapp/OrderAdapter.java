@@ -1,12 +1,9 @@
 package com.devashish.erpapp;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.net.Uri;
+import android.media.Image;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,10 +16,18 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder>{
 
@@ -48,14 +53,14 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     @Override
     public void onBindViewHolder(@NonNull final OrderViewHolder holder, final int position) {
         final Order Order = OrderList.get(position);
-        holder.price.setText("₹"+Order.getProduct_price());
+        holder.price.setText("₹" + Order.getProduct_price());
         holder.orderid.setText(Order.getProduct_id());
         holder.name.setText(Order.getProduct_name());
-        holder.quantity.setText("X "+Order.getQuantity());
-        String status = Order.getStatus().toString();
+        holder.quantity.setText("X " + Order.getQuantity());
         holder.status.setText(Order.getStatus());
         Picasso.with(mCtx).load(Order.getProduct_image()).placeholder(R.drawable.orders).into(holder.imageView);
 
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         final String PushId = OrderList.get(position).getProduct_id();
         holder.card_layout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,19 +78,32 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             public void onClick(View v) {
                 holder.cancelButton.setClickable(false);
                 holder.cancelButton.setText("CANCELED");
-                db.collection("Users").document(Order.getDealer_id()).collection("Orders").document(Order.getProduct_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                db.collection("Dealers").document(Order.getDealer_id()).collection("Orders").document(Order.getProduct_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful())
-                        {
-                            Toast.makeText(mCtx,"SUCCESS DELETED",Toast.LENGTH_LONG).show();
+                        if (task.isSuccessful()) {
+                            db.collection("AllOrders").document(Order.getPush_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Toast.makeText(mCtx, "SUCCESS DELETED", Toast.LENGTH_LONG).show();
+                                }
+                            });
                         }
                     }
                 });
             }
         });
-    }
 
+        if (holder.status.getText().toString().equals("Confirmed")){
+            holder.cancelButton.setVisibility(View.GONE);
+            holder.deleteOrd.setVisibility(View.VISIBLE);
+
+        }else {
+            holder.deleteOrd.setVisibility(View.GONE);
+            holder.cancelButton.setVisibility(View.VISIBLE);
+        }
+
+    }
     @Override
     public int getItemCount() {
         return OrderList.size();
@@ -93,7 +111,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     class OrderViewHolder extends RecyclerView.ViewHolder
     {
-        ImageView imageView;
+        ImageView imageView, deleteOrd;
         TextView name,price,quantity,orderid,status;
         CardView card_layout;
         //AppCompatRatingBar ratingBar;
@@ -111,6 +129,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             price = (TextView) itemView.findViewById(R.id.product_price);
             status = (TextView) itemView.findViewById(R.id.status);
             cancelButton = (Button) itemView.findViewById(R.id.cancelButton);
+            deleteOrd = (ImageView) itemView.findViewById(R.id.delete_order);
             //ratingBar = (AppCompatRatingBar) itemView.findViewById(R.id.ratingBarMain);
         }
     }

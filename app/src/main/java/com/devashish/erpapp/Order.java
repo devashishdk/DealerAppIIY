@@ -1,10 +1,14 @@
 package com.devashish.erpapp;
-
 public class Order {
     String dealer_id;
     String product_id;
+    String push_id;
+    String month;
+    String year;
 
-    public Order(String dealer_id, String product_id, String product_image, String product_name, String product_price, String quantity, String status) {
+    public Order(String dealer_id, String product_id, String product_image
+            , String product_name, String product_price, String quantity,
+                 String status, String push_id, String month, String year) {
         this.dealer_id = dealer_id;
         this.product_id = product_id;
         this.product_image = product_image;
@@ -12,10 +16,37 @@ public class Order {
         this.product_price = product_price;
         this.quantity = quantity;
         this.status = status;
+        this.push_id = push_id;
+        this.month = month;
+        this.year = year;
     }
 
     public Order() {
 
+    }
+
+    public String getMonth() {
+        return month;
+    }
+
+    public void setMonth(String month) {
+        this.month = month;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    public String getPush_id() {
+        return push_id;
+    }
+
+    public void setPush_id(String push_id) {
+        this.push_id = push_id;
     }
 
     public String getDealer_id() {

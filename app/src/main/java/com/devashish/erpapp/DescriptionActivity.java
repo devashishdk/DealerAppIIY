@@ -38,6 +38,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 public class DescriptionActivity extends AppCompatActivity {
@@ -57,7 +60,7 @@ public class DescriptionActivity extends AppCompatActivity {
     Button orderButton,cartButton;
     ImageButton addQ,delQ;
     LinearLayout description_view;
-    HashMap<String,String> hashMap;
+    HashMap<String,String> hashMap,hashMapSecond;
     String product_name,product_mrp,product_price,product_brand,image,product_id,product_description;
 
     private void applyFontToMenuItem(MenuItem mi) {
@@ -169,6 +172,15 @@ public class DescriptionActivity extends AppCompatActivity {
                 pd.setMessage("Please Wait");
                 pd.show();
 
+                Date c = Calendar.getInstance().getTime();
+                System.out.println("Current time => " + c);
+
+                SimpleDateFormat year = new SimpleDateFormat("yyyy");
+                SimpleDateFormat month = new SimpleDateFormat("MMM");
+                final String year_for = year.format(c);
+                final String month_for = month.format(c);
+
+
                 hashMap = new HashMap<String, String>();
                 hashMap.put("product_name",name.getText().toString());
                 hashMap.put("dealer_id",firebaseUser.getUid());
@@ -178,6 +190,9 @@ public class DescriptionActivity extends AppCompatActivity {
                 hashMap.put("product_price",String.valueOf(Integer.parseInt(product_price) * Integer.parseInt(quantity.getText().toString())));
                 hashMap.put("product_image",image);
                 hashMap.put("quantity",quantity.getText().toString());
+                hashMap.put("year", year_for);
+                hashMap.put("month", month_for);
+                hashMap.put("search", product_name.toLowerCase());
 
                 db.collection("Users").document(firebaseUser.getUid().toString()).collection("Cart").document(product_id).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -217,47 +232,64 @@ public class DescriptionActivity extends AppCompatActivity {
                 pd.setMessage("Please Wait");
                 pd.show();
 
+                Date c = Calendar.getInstance().getTime();
+                System.out.println("Current time => " + c);
+
+                SimpleDateFormat year = new SimpleDateFormat("yyyy");
+                SimpleDateFormat month = new SimpleDateFormat("MMM");
+                final String year_for = year.format(c);
+                final String month_for = month.format(c);
+                String push = db.collection("AllOrders").document().getId();
+
                 hashMap = new HashMap<String, String>();
-                hashMap.put("product_name",name.getText().toString());
-                hashMap.put("dealer_id",firebaseUser.getUid());
-                hashMap.put("product_id",product_id);
-                hashMap.put("status","Pending");
-                hashMap.put("product_name",product_name);
-                hashMap.put("product_price",product_price);
-                hashMap.put("product_image",image);
-                hashMap.put("quantity",quantity.getText().toString());
-
-                db.collection("AllOrders").add(hashMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                hashMap.put("product_name", name.getText().toString());
+                hashMap.put("dealer_id", firebaseUser.getUid());
+                hashMap.put("product_id", product_id);
+                hashMap.put("status", "Pending");
+                hashMap.put("product_name", product_name);
+                hashMap.put("product_price", String.valueOf(Integer.parseInt(product_price) * Integer.parseInt(quantity.getText().toString())));
+                hashMap.put("product_image", image);
+                hashMap.put("quantity", quantity.getText().toString());
+                hashMap.put("year", year_for);
+                hashMap.put("month", month_for);
+                hashMap.put("search", product_name.toLowerCase());
+                hashMap.put("push_id",push);
+                db.collection("AllOrders").document(push).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
-                            if(task.isSuccessful())
-                            {
-                                db.collection("Users").document(firebaseUser.getUid().toString()).collection("Orders").document(product_id).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        String message = "You just received an order from "+firebaseUser.getUid().toString()+ " \n\nPRODUCT NAME : "+product_name + "\nQuantity : "+quantity.getText().toString();
-                                        SendMail sm = new SendMail(DescriptionActivity.this, "devashisht2914@gmail.com", "ORDER FROM "+firebaseUser.getUid().toString(), message);
-                                        //Executing sendmail to send email
-                                        sm.execute();
-                                        Toast.makeText(DescriptionActivity.this,"SUCCESS",Toast.LENGTH_LONG).show();
-                                        pd.dismiss();
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            db.collection("Dealers").document(firebaseUser.getUid().toString()).collection("Orders").document(product_id).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    String message = "You just received an order from " + firebaseUser.getUid().toString() + " \n\nPRODUCT NAME : " + product_name + "\nQuantity : " + quantity.getText().toString();
+                                    SendMail sm = new SendMail(DescriptionActivity.this, "devashisht2914@gmail.com", "ORDER FROM " + firebaseUser.getUid().toString(), message);
+                                    //Executing sendmail to send email
+                                    sm.execute();
+                                    Toast.makeText(DescriptionActivity.this, "SUCCESS", Toast.LENGTH_LONG).show();
+                                    pd.dismiss();
 
 
-                                        Intent intent = new Intent(DescriptionActivity.this,checksum.class);
-                                        intent.putExtra("orderid", "123");
-                                        intent.putExtra("custid", "211");
-                                        intent.putExtra("price",product_price);
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                pd.dismiss();
-                                orderButton.setClickable(true);
-                                Toast.makeText(DescriptionActivity.this,"FAIL",Toast.LENGTH_LONG).show();
-                            }
+                                    Intent intent = new Intent(DescriptionActivity.this, checksum.class);
+                                    intent.putExtra("orderid", "123");
+                                    intent.putExtra("custid", "211");
+                                    intent.putExtra("price", product_price);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            });
+                        } else {
+                            pd.dismiss();
+                            orderButton.setClickable(true);
+                            Toast.makeText(DescriptionActivity.this, "FAIL", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                });
+
+                db.collection("OrderById").document(firebaseUser.getUid()).collection("Orders").document(push).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
                     }
                 });
             }
