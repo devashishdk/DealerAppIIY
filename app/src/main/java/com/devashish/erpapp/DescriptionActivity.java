@@ -61,7 +61,7 @@ public class DescriptionActivity extends AppCompatActivity {
     ImageButton addQ,delQ;
     LinearLayout description_view;
     HashMap<String,String> hashMap,hashMapSecond;
-    String product_name,product_mrp,product_price,product_brand,image,product_id,product_description;
+    String product_name,product_mrp,product_price,product_brand,image,product_id,product_description,user_image,user_search,user_name;
 
     private void applyFontToMenuItem(MenuItem mi) {
         Typeface font = Typeface.createFromAsset(getAssets(), "fonts/font_app.ttf");
@@ -96,7 +96,7 @@ public class DescriptionActivity extends AppCompatActivity {
         mrp = (TextView) findViewById(R.id.mrp);
         brand = (TextView) findViewById(R.id.brand);
         savings = (TextView) findViewById(R.id.saving);
-
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         addQ = (ImageButton) findViewById(R.id.add_q);
         delQ = (ImageButton) findViewById(R.id.del_q);
         quantity = (TextView) findViewById(R.id.quantity);
@@ -123,7 +123,27 @@ public class DescriptionActivity extends AppCompatActivity {
             }
         });
 
+
         String key = getIntent().getStringExtra("Key");
+
+        hashMapSecond = new HashMap<String, String>();
+
+        db.collection("Dealers").document(firebaseUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    user_image = documentSnapshot.get("image").toString();
+                    user_name = documentSnapshot.get("name").toString();
+                    user_search = user_name.toLowerCase();
+                    hashMapSecond.put("image", user_image);
+                    hashMapSecond.put("name", user_name);
+                    hashMapSecond.put("search", user_search);
+                    hashMapSecond.put("uid", firebaseUser.getUid().toString());
+                }
+            }
+        });
+
 
         db.collection("AllItems").document(key).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -152,8 +172,6 @@ public class DescriptionActivity extends AppCompatActivity {
                 }
             }
         });
-
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         cartButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -187,6 +205,7 @@ public class DescriptionActivity extends AppCompatActivity {
                 hashMap.put("product_id",product_id);
                 hashMap.put("status","Pending");
                 hashMap.put("product_name",product_name);
+                hashMap.put("original_price",product_price);
                 hashMap.put("product_price",String.valueOf(Integer.parseInt(product_price) * Integer.parseInt(quantity.getText().toString())));
                 hashMap.put("product_image",image);
                 hashMap.put("quantity",quantity.getText().toString());
@@ -194,7 +213,7 @@ public class DescriptionActivity extends AppCompatActivity {
                 hashMap.put("month", month_for);
                 hashMap.put("search", product_name.toLowerCase());
 
-                db.collection("Users").document(firebaseUser.getUid().toString()).collection("Cart").document(product_id).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                db.collection("Dealers").document(firebaseUser.getUid().toString()).collection("Cart").document(product_id).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful())
@@ -286,12 +305,20 @@ public class DescriptionActivity extends AppCompatActivity {
 
                 });
 
+                db.collection("OrderById").document(firebaseUser.getUid()).set(hashMapSecond).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                    }
+                });
+
                 db.collection("OrderById").document(firebaseUser.getUid()).collection("Orders").document(push).set(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
                     }
                 });
+
             }
         });
 

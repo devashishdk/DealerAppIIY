@@ -108,18 +108,18 @@ public class ProfileActivity extends AppCompatActivity {
 
         //mUserDatabase = FirebaseFirestore.getInstance().getReference().child("Users").child(current_uid);
         mUserDatabase = FirebaseFirestore.getInstance();
-        mUserDatabase.collection("Users").document(current_uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        mUserDatabase.collection("Dealers").document(current_uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 DocumentSnapshot documentSnapshot = task.getResult();
-                final String image = documentSnapshot.get("profile_pic").toString();
-                String first_name = documentSnapshot.get("first_name").toString();
-                String last_name = documentSnapshot.get("last_name").toString();
-                String name = first_name + " " +last_name;
+                final String image = documentSnapshot.get("image").toString();
+                String first_name = documentSnapshot.get("name").toString();
+                String last_name = documentSnapshot.get("name").toString();
+                String name = first_name;
                 String gst = documentSnapshot.get("gst").toString();
-                String shopname = documentSnapshot.get("company").toString();
-                String city = documentSnapshot.get("address1").toString();
-                String state = documentSnapshot.get("address2").toString();
+                String shopname = documentSnapshot.get("shopname").toString();
+                String city = documentSnapshot.get("city").toString();
+                String state = documentSnapshot.get("state").toString();
                 String mob = documentSnapshot.get("mob").toString();
                 //String address = documentSnapshot.get("address").toString();
 
@@ -181,12 +181,17 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String mob = mMobile.getText().toString();
                 String name = mName.getText().toString();
-                /*
-                Intent intent = new Intent(ProfileActivity.this,MainActivity.class);
+
+                Intent intent = new Intent(ProfileActivity.this,EditProfileActivity.class);
                 intent.putExtra("mob",mob);
                 intent.putExtra("name",name);
+                intent.putExtra("state",mState.getText().toString());
+                intent.putExtra("city",mCity.getText().toString());
+                intent.putExtra("gst",mShopGST.getText().toString());
+                intent.putExtra("address",mShopAddress.getText().toString());
+                intent.putExtra("shopname",mShopName.getText().toString());
                 startActivity(intent);
-                */
+
             }
         });
     }
@@ -244,9 +249,7 @@ public class ProfileActivity extends AppCompatActivity {
                 StorageReference filepath = mImageStorage.child("profile_images").child(current_user_id + ".jpg");
                 final StorageReference thumb_filepath = mImageStorage.child("profile_images").child("thumbs").child(current_user_id + ".jpg");
 
-
-
-                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                thumb_filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
@@ -289,23 +292,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                                             }
                                         });
-                                        //Also Edit Here
-                                        /*
-                                        mUserDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
 
-                                                if(task.isSuccessful()){
-
-                                                    mProgressDialog.dismiss();
-                                                    Toast.makeText(ProfileActivity.this, "Success Uploading.", Toast.LENGTH_LONG).show();
-
-                                                }
-
-                                            }
-                                        });
-
-                                        */
                                     } else {
 
                                         Toast.makeText(ProfileActivity.this, "Error in uploading thumbnail.", Toast.LENGTH_LONG).show();

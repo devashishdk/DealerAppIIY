@@ -171,7 +171,7 @@ public class FilterActivity extends AppCompatActivity {
                 {
                     case (R.id.home):
                         drawerLayout.closeDrawers();
-                        Intent intent = new Intent(FilterActivity.this,FilterActivity.class);
+                        Intent intent = new Intent(FilterActivity.this,MainActivity.class);
                         startActivity(intent);
                         finish();
                         //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);

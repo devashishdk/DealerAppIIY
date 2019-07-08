@@ -68,6 +68,7 @@
                         android:layout_height="wrap_content"
                         android:hint="Lowest"
                         android:text="0"
+                        android:inputType="number"
                         android:layout_weight="1"/>
                     <com.devashish.erpapp.MyEditText
                         android:id="@+id/price_high"
@@ -75,6 +76,7 @@
                         android:layout_height="wrap_content"
                         android:hint="Highest"
                         android:text="100000"
+                        android:inputType="number"
                         android:layout_weight="1"/>
                 </LinearLayout>
 

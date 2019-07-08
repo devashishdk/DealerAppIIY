@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -28,6 +30,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mProductList;
     List<Product> ProductList;
     ProductAdapter productAdapter;
-
+    AllItemsListAdapter adapter;
     RecyclerView mCategoryList;
     List<Category> CategoryList;
     CategoryAdapter CategoryAdapter;
@@ -59,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     ProgressDialog pd;
     private FirebaseAuth mAuth;
     String sort_choice = "";
+
     private void applyFontToMenuItem(MenuItem mi) {
         Typeface font = Typeface.createFromAsset(getAssets(), "fonts/font_app.ttf");
         SpannableString mNewTitle = new SpannableString(mi.getTitle());
@@ -179,27 +183,37 @@ public class MainActivity extends AppCompatActivity {
 
         ProductList = new ArrayList<>();
 
-        db.collection("AllItems").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot doc : task.getResult()){
-                        Product p = doc.toObject(Product.class);
-                        ProductList.add(p);
-                    }
+        //createing new viewmodel for firebase recycler ui
+        Query query = db.collection("AllItems");
+        final FirestoreRecyclerOptions<Product> options = new FirestoreRecyclerOptions.Builder<Product>()
+                .setQuery(query,Product.class)
+                .build();
 
-                    productAdapter = new ProductAdapter(MainActivity.this, ProductList);
-                    mProductList.setAdapter(productAdapter);
+        adapter = new AllItemsListAdapter(getApplicationContext(), options);
+        mProductList.setAdapter(adapter);
 
-                    //If ProgressDialog is showing Dismiss it
-                    if(pd.isShowing())
-                    {
-                        pd.dismiss();
-                    }
-
-                }
-            }
-        });
+//
+//        db.collection("AllItems").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                if (task.isSuccessful()){
+//                    for (QueryDocumentSnapshot doc : task.getResult()){
+//                        Product p = doc.toObject(Product.class);
+//                        ProductList.add(p);
+//                    }
+//
+//                    productAdapter = new ProductAdapter(MainActivity.this, ProductList);
+//                    mProductList.setAdapter(productAdapter);
+//
+//                    //If ProgressDialog is showing Dismiss it
+//                    if(pd.isShowing())
+//                    {
+//                        pd.dismiss();
+//                    }
+//
+//                }
+//            }
+//        });
 
         filterCard.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -243,7 +257,6 @@ public class MainActivity extends AppCompatActivity {
                                     {
                                         pd.dismiss();
                                     }
-
                                 }
                             }
                         });
@@ -278,22 +291,84 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.optionmenu,menu);
-        return true;
+
+        MenuItem item = menu.findItem(R.id.search);
+
+
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                //searchData(s.toLowerCase());
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                searchLiveData(s.toLowerCase());
+                return false;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+
+        //return  true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case (R.id.search):
-                Intent intent = new Intent(MainActivity.this,SearchActivity.class);
-                startActivity(intent);
-                break;
             case (R.id.cart):
                 Intent intentC = new Intent(MainActivity.this,CartActivity.class);
                 startActivity(intentC);
                 break;
         }
         return true;
+    }
+
+    private void searchLiveData(String s) {
+
+        Query query = db.collection("AllItems").orderBy("search").startAt(s).endAt(s+"\uf8ff");
+        final FirestoreRecyclerOptions<Product> options = new FirestoreRecyclerOptions.Builder<Product>()
+                .setQuery(query,Product.class)
+                .build();
+
+        adapter = new AllItemsListAdapter(getApplicationContext(), options);
+        mProductList.setAdapter(adapter);
+        adapter.setOnItemClick(new AllItemsListAdapter.OnItemClick() {
+            @Override
+            public void getPosition(String item_id) {
+                Intent intent = new Intent(MainActivity.this, DescriptionActivity.class);
+                intent.putExtra("push_id", item_id);
+                startActivity(intent);
+            }
+        });
+
+        adapter.startListening();
+    }
+
+    private void searchData(String s) {
+        /*
+        dialog.setMessage("Searching");
+        dialog.show();
+        Query query = db.collection("AllItems").orderBy("search").startAt(s).endAt(s+"\uf8ff");
+        final FirestoreRecyclerOptions<ALlItems> options = new FirestoreRecyclerOptions.Builder<ALlItems>()
+                .setQuery(query, ALlItems.class)
+                .build();
+
+        adapter = new AllItemsListAdapter(getApplicationContext(), options);
+        allItemsList.setAdapter(adapter);
+
+        adapter.setOnItemClick(new AllItemsListAdapter.OnItemClick() {
+            @Override
+            public void getPosition(String item_id) {
+                Intent intent = new Intent(AllItemsActivity.this, EditProductActivity.class);
+                intent.putExtra("push_id", item_id);
+                startActivity(intent);
+            }
+        });
+        adapter.startListening();
+        */
     }
 
     void setUpToolBar()
@@ -310,6 +385,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        adapter.startListening();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser==null)
@@ -320,5 +396,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(startIntent);
             finish();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapter.stopListening();
     }
 }

@@ -1,4 +1,4 @@
-package com.example.dealerapp;
+package com.devashish.erpapp;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.dealerapp.Utils.ALlItems;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,7 +30,7 @@ import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class AllItemsListAdapter extends FirestoreRecyclerAdapter<ALlItems, AllItemsListAdapter.ViewHolder> {
+public class AllItemsListAdapter extends FirestoreRecyclerAdapter<Product, AllItemsListAdapter.ViewHolder> {
 
     private Context mContext;
 
@@ -40,7 +39,7 @@ public class AllItemsListAdapter extends FirestoreRecyclerAdapter<ALlItems, AllI
 
     OnItemClick onItemClick;
 
-    public AllItemsListAdapter(Context mContext, FirestoreRecyclerOptions<ALlItems> options) {
+    public AllItemsListAdapter(Context mContext, FirestoreRecyclerOptions<Product> options) {
         super(options);
         this.mContext = mContext;
         this.notifyDataSetChanged();
@@ -57,55 +56,53 @@ public class AllItemsListAdapter extends FirestoreRecyclerAdapter<ALlItems, AllI
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull final ViewHolder holder, final int position, @NonNull final ALlItems model) {
+    protected void onBindViewHolder(@NonNull final ViewHolder holder, final int position, @NonNull final Product model) {
 
-        holder.name.setText(model.getItem_name());
+        holder.product_name.setText(model.getItem_name());
         holder.price.setText(String.valueOf(model.getItem_price()) + " Rs");
-        holder.brand.setText(model.getItem_brand());
+        holder.brand_name.setText(model.getItem_brand());
         holder.mrp.setText(String.valueOf(model.getItem_mrp()));
         holder.discount.setText(String.valueOf(model.getItem_discount()));
 
-        Picasso picasso = Picasso.get();
-        picasso.setIndicatorsEnabled(false);
-        picasso.load(model.getItem_image()).into(holder.itemImage);
+        //Picasso picasso = Picasso.get();
+        //picasso.setIndicatorsEnabled(false);
+        //picasso.load(model.getItem_image()).into(holder.itemImage);
 
-        holder.itemCard.setOnClickListener(new View.OnClickListener() {
+        holder.card_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onItemClick.getPosition(model.getItem_id());
             }
         });
-
-
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.product_single_item, viewGroup, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.single_product, viewGroup, false);
 
-        return new AllItemsListAdapter.ViewHolder(view);
+        return new ViewHolder(view);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView name, brand, price, discount, mrp;
-        private ImageView itemImage;
-        private CardView itemCard;
-
+        TextView price,mrp,discount,brand_name,product_name;
+        CardView card_layout;
+        ImageView product_image;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            name = itemView.findViewById(R.id.product_single_item_name);
-            brand = itemView.findViewById(R.id.product_single_item_brand);
-            price = itemView.findViewById(R.id.product_single_item_price);
-            itemImage = itemView.findViewById(R.id.product_single_item_image);
-            itemCard = itemView.findViewById(R.id.single_item_card);
-            mrp = itemView.findViewById(R.id.single_item_mrp);
-            discount = itemView.findViewById(R.id.single_item_discount_percent);
-
+            mrp = (TextView) itemView.findViewById(R.id.mrp);
+            price = (TextView) itemView.findViewById(R.id.price);
+            discount = (TextView) itemView.findViewById(R.id.discount);
+            brand_name = (TextView) itemView.findViewById(R.id.brand_name);
+            product_name = (TextView) itemView.findViewById(R.id.product_name);
+            product_image = (ImageView) itemView.findViewById(R.id.product_image);
+            card_layout = (CardView) itemView.findViewById(R.id.card_layout);
         }
+
+
+
 
     }
 }

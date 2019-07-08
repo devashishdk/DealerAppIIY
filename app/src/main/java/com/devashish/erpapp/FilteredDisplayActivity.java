@@ -55,29 +55,59 @@ public class FilteredDisplayActivity extends AppCompatActivity {
 
         ProductList = new ArrayList<>();
 
-        db.collection("AllItems").whereEqualTo("item_brand",brand.get(0)).whereGreaterThan("item_price",hashMapObject.get("price_low")).whereLessThan("item_price",hashMapObject.get("price_high")).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot doc : task.getResult()){
-                        Product p = doc.toObject(Product.class);
-                        ProductList.add(p);
+        if(brand.isEmpty())
+        {
+            db.collection("AllItems").whereGreaterThan("item_price",hashMapObject.get("price_low")).whereLessThan("item_price",hashMapObject.get("price_high")).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        for (QueryDocumentSnapshot doc : task.getResult()){
+                            Product p = doc.toObject(Product.class);
+                            ProductList.add(p);
+                        }
+
+                        productAdapter = new ProductAdapter(FilteredDisplayActivity.this, ProductList);
+                        mProductList.setAdapter(productAdapter);
+
+                        //If ProgressDialog is showing Dismiss it
+                        if(pd.isShowing())
+                        {
+                            pd.dismiss();
+                        }
+
                     }
-
-                    productAdapter = new ProductAdapter(FilteredDisplayActivity.this, ProductList);
-                    mProductList.setAdapter(productAdapter);
-
-                    //If ProgressDialog is showing Dismiss it
-                    if(pd.isShowing())
-                    {
+                    else {
                         pd.dismiss();
                     }
+                }
+            });
+        }
+        else
+        {
+            db.collection("AllItems").whereEqualTo("item_brand",brand.get(0)).whereGreaterThan("item_price",hashMapObject.get("price_low")).whereLessThan("item_price",hashMapObject.get("price_high")).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        for (QueryDocumentSnapshot doc : task.getResult()){
+                            Product p = doc.toObject(Product.class);
+                            ProductList.add(p);
+                        }
 
+                        productAdapter = new ProductAdapter(FilteredDisplayActivity.this, ProductList);
+                        mProductList.setAdapter(productAdapter);
+
+                        //If ProgressDialog is showing Dismiss it
+                        if(pd.isShowing())
+                        {
+                            pd.dismiss();
+                        }
+
+                    }
+                    else {
+                        pd.dismiss();
+                    }
                 }
-                else {
-                    pd.dismiss();
-                }
-            }
-        });
+            });
+        }
     }
 }

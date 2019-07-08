@@ -24,7 +24,7 @@
         app:cardCornerRadius="10dp"
         >
 
-        <com.devashish.erpapp.MyTextView
+        <TextView
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
 
                     android:tint="@android:color/black" />
 
-                <com.devashish.erpapp.MyTextView
+                <TextView
                     style="@style/TextAppearance.AppCompat.Subhead"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -96,7 +96,7 @@
                     android:src="@drawable/category"
                     android:tint="@android:color/black"/>
 
-                <com.devashish.erpapp.MyTextView
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -129,7 +129,7 @@
                     android:src="@drawable/filter"
                     android:tint="@android:color/black" />
 
-                <com.devashish.erpapp.MyTextView
+                <TextView
                     style="@style/TextAppearance.AppCompat.Subhead"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

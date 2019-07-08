@@ -55,7 +55,7 @@ public class SavedActivity extends AppCompatActivity {
 
         OrderList = new ArrayList<>();
 
-        db.collection("Users").document(firebaseUser.getUid().toString()).collection("Saved").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("Dealers").document(firebaseUser.getUid().toString()).collection("Saved").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){

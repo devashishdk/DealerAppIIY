@@ -85,7 +85,11 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                             db.collection("AllOrders").document(Order.getPush_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    Toast.makeText(mCtx, "SUCCESS DELETED", Toast.LENGTH_LONG).show();
+                                    if(task.isSuccessful())
+                                    {
+                                        OrderList.remove(position);
+                                        notifyDataSetChanged();
+                                    }
                                 }
                             });
                         }

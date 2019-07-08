@@ -45,7 +45,8 @@
         <activity android:name=".CategoryItemDisplayActivity" />
         <activity android:name=".ImageDisplayActivity" />
         <activity android:name=".checksum" />
-        <activity android:name=".SavedActivity"></activity>
+        <activity android:name=".SavedActivity" />
+        <activity android:name=".EditProfileActivity"></activity>
     </application>
 
 </manifest>

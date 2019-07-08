@@ -6,9 +6,19 @@ public class Order {
     String month;
     String year;
 
+    public String getOriginal_price() {
+        return original_price;
+    }
+
+    public void setOriginal_price(String original_price) {
+        this.original_price = original_price;
+    }
+
+    String original_price;
+
     public Order(String dealer_id, String product_id, String product_image
             , String product_name, String product_price, String quantity,
-                 String status, String push_id, String month, String year) {
+                 String status, String push_id, String month, String year,String original_price) {
         this.dealer_id = dealer_id;
         this.product_id = product_id;
         this.product_image = product_image;
@@ -19,6 +29,7 @@ public class Order {
         this.push_id = push_id;
         this.month = month;
         this.year = year;
+        this.original_price = original_price;
     }
 
     public Order() {

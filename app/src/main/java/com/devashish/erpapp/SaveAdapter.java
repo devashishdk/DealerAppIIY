@@ -71,12 +71,13 @@ public class SaveAdapter extends RecyclerView.Adapter<SaveAdapter.OrderViewHolde
             public void onClick(View v) {
                 holder.cancelButton.setClickable(false);
                 holder.cancelButton.setText("CANCELED");
-                db.collection("Users").document(Order.getDealer_id()).collection("Saved").document(Order.getProduct_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                db.collection("Dealers").document(Order.getDealer_id()).collection("Saved").document(Order.getProduct_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful())
                         {
-                            Toast.makeText(mCtx,"SUCCESS DELETED",Toast.LENGTH_LONG).show();
+                            OrderList.remove(position);
+                            notifyDataSetChanged();
                         }
                     }
                 });
