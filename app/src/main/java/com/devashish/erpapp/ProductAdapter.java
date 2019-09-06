@@ -51,8 +51,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.TestView
         holder.discount.setText(String.valueOf(Product.getItem_discount())+"%");
         holder.brand_name.setText(Product.getItem_brand());
         String image = Product.getItem_image();
-        Picasso.with(mCtx).load(image).placeholder(R.drawable.shopone).into(holder.product_image);
 
+        Picasso picasso = Picasso.get();
+        picasso.setIndicatorsEnabled(false);
+        picasso.load(image).placeholder(R.drawable.placeholder).into(holder.product_image);
 
         final String PushId = ProductsList.get(position).getItem_id();
         holder.card_layout.setOnClickListener(new View.OnClickListener() {

@@ -58,7 +58,10 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         holder.name.setText(Order.getProduct_name());
         holder.quantity.setText("X " + Order.getQuantity());
         holder.status.setText(Order.getStatus());
-        Picasso.with(mCtx).load(Order.getProduct_image()).placeholder(R.drawable.orders).into(holder.imageView);
+
+        Picasso picasso = Picasso.get();
+        picasso.setIndicatorsEnabled(false);
+        picasso.load(Order.getProduct_image()).placeholder(R.drawable.placeholder).into(holder.imageView);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         final String PushId = OrderList.get(position).getProduct_id();

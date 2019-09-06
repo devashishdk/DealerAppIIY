@@ -31,11 +31,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     HashMap<String,String> hashMap;
     int ProductPrice;
-
-    CartAdapter(Context mCtx, List<Order> OrderList)
+    TextView totalPrice;
+    CartAdapter(Context mCtx, List<Order> OrderList,TextView totalPrice)
     {
         this.mCtx = mCtx;
         this.OrderList = OrderList;
+        this.totalPrice = totalPrice;
     }
     @NonNull
     @Override
@@ -57,7 +58,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.quant.setText(Order.getQuantity());
         String status = Order.getStatus().toString();
         holder.status.setText(Order.getStatus());
-        Picasso.with(mCtx).load(Order.getProduct_image()).placeholder(R.drawable.orders).into(holder.imageView);
+
+        Picasso picasso = Picasso.get();
+        picasso.setIndicatorsEnabled(false);
+        picasso.load(Order.getProduct_image()).placeholder(R.drawable.placeholder).into(holder.imageView);
+
 
         final String PushId = OrderList.get(position).getProduct_id();
         holder.card_layout.setOnClickListener(new View.OnClickListener() {
@@ -76,6 +81,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             public void onClick(View v) {
                 holder.cancelButton.setClickable(false);
                 holder.cancelButton.setText("CANCELED");
+                totalPrice.setText(String.valueOf(Integer.parseInt(totalPrice.getText().toString().replace("₹","")) - Integer.parseInt(holder.price.getText().toString().replace("₹",""))));
                 db.collection("Dealers").document(Order.getDealer_id()).collection("Cart").document(Order.getProduct_id()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -93,7 +99,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             public void onClick(View v) {
                 holder.saveButton.setClickable(false);
                 holder.saveButton.setText("SAVED");
-
                 hashMap = new HashMap<String, String>();
                 hashMap = new HashMap<String, String>();
                 hashMap.put("product_name",Order.getProduct_name());
@@ -145,6 +150,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                         {
                             holder.quant.setText(String.valueOf(valQuantitiy + 1));
                             holder.price.setText(valPrice);
+                            totalPrice.setText(String.valueOf(Integer.parseInt(totalPrice.getText().toString().replace("₹","")) + Integer.parseInt(Order.getOriginal_price())));
                             holder.quantity.setText(String.valueOf(valQuantitiy + 1));
                             holder.addq.setClickable(true);
                         }
@@ -170,8 +176,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                         {
                             holder.quant.setText(String.valueOf(valQuantitiy - 1));
                             holder.price.setText(valPrice);
+                            totalPrice.setText(String.valueOf(Integer.parseInt(totalPrice.getText().toString().replace("₹","")) - Integer.parseInt(Order.getOriginal_price())));
                             holder.quantity.setText(String.valueOf(valQuantitiy - 1));
-                            holder.addq.setClickable(true);
+                            holder.delq.setClickable(true);
                         }
                     }
                 });

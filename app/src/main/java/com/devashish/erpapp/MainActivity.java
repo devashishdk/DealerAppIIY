@@ -1,5 +1,6 @@
 package com.devashish.erpapp;
 
+import android.animation.LayoutTransition;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -21,12 +22,15 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +46,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -136,6 +141,18 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intentCategory);
                         //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
                         break;
+                    case (R.id.saved):
+                        drawerLayout.closeDrawers();
+                        Intent intentSaved = new Intent(MainActivity.this,SavedActivity.class);
+                        startActivity(intentSaved);
+                        //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        break;
+                    case (R.id.cart):
+                        drawerLayout.closeDrawers();
+                        Intent intentCart = new Intent(MainActivity.this,CartActivity.class);
+                        startActivity(intentCart);
+                        //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        break;
                     case  (R.id.logout):
                         drawerLayout.closeDrawers();
                         FirebaseAuth.getInstance().signOut();
@@ -159,6 +176,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
+                    Category category = new Category("All Items","All Items");
+                    CategoryList.add(category);
                     for (QueryDocumentSnapshot doc : task.getResult()){
                         Category p = doc.toObject(Category.class);
                         CategoryList.add(p);
@@ -166,6 +185,61 @@ public class MainActivity extends AppCompatActivity {
 
                     CategoryAdapter = new CategoryAdapter(MainActivity.this, CategoryList);
                     mCategoryList.setAdapter(CategoryAdapter);
+                    CategoryAdapter.setOnItemClick(new CategoryAdapter.OnItemClick() {
+                        @Override
+                        public void getPosition(String userId) {
+                            pd.setCanceledOnTouchOutside(false);
+                            pd.setCancelable(true);
+                            pd.setMessage("Please Wait");
+                            pd.show();
+
+                            ProductList = new ArrayList<>();
+
+                            if (!userId.equals("All Items")) {
+                                db.collection("AllItems").whereEqualTo("item_category", userId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            for (QueryDocumentSnapshot doc : task.getResult()) {
+                                                Product p = doc.toObject(Product.class);
+                                                ProductList.add(p);
+                                            }
+
+                                            productAdapter = new ProductAdapter(MainActivity.this, ProductList);
+                                            mProductList.setAdapter(productAdapter);
+
+                                            //If ProgressDialog is showing Dismiss it
+                                            if (pd.isShowing()) {
+                                                pd.dismiss();
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                db.collection("AllItems").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            for (QueryDocumentSnapshot doc : task.getResult()) {
+                                                Product p = doc.toObject(Product.class);
+                                                ProductList.add(p);
+                                            }
+
+                                            productAdapter = new ProductAdapter(MainActivity.this, ProductList);
+                                            mProductList.setAdapter(productAdapter);
+
+                                            //If ProgressDialog is showing Dismiss it
+                                            if (pd.isShowing()) {
+                                                pd.dismiss();
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
 
                     //If ProgressDialog is showing Dismiss it
                     if(pd.isShowing())
@@ -183,37 +257,27 @@ public class MainActivity extends AppCompatActivity {
 
         ProductList = new ArrayList<>();
 
-        //createing new viewmodel for firebase recycler ui
-        Query query = db.collection("AllItems");
-        final FirestoreRecyclerOptions<Product> options = new FirestoreRecyclerOptions.Builder<Product>()
-                .setQuery(query,Product.class)
-                .build();
+        db.collection("AllItems").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot doc : task.getResult()){
+                        Product p = doc.toObject(Product.class);
+                        ProductList.add(p);
+                    }
 
-        adapter = new AllItemsListAdapter(getApplicationContext(), options);
-        mProductList.setAdapter(adapter);
+                    productAdapter = new ProductAdapter(MainActivity.this, ProductList);
+                    mProductList.setAdapter(productAdapter);
 
-//
-//        db.collection("AllItems").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                if (task.isSuccessful()){
-//                    for (QueryDocumentSnapshot doc : task.getResult()){
-//                        Product p = doc.toObject(Product.class);
-//                        ProductList.add(p);
-//                    }
-//
-//                    productAdapter = new ProductAdapter(MainActivity.this, ProductList);
-//                    mProductList.setAdapter(productAdapter);
-//
-//                    //If ProgressDialog is showing Dismiss it
-//                    if(pd.isShowing())
-//                    {
-//                        pd.dismiss();
-//                    }
-//
-//                }
-//            }
-//        });
+                    //If ProgressDialog is showing Dismiss it
+                    if(pd.isShowing())
+                    {
+                        pd.dismiss();
+                    }
+
+                }
+            }
+        });
 
         filterCard.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -296,13 +360,16 @@ public class MainActivity extends AppCompatActivity {
 
 
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        View searchBar = searchView.findViewById(R.id.search_bar);
+        if (searchBar != null && searchBar instanceof LinearLayout) {
+            ((LinearLayout) searchBar).setLayoutTransition(new LayoutTransition());
+        }
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 //searchData(s.toLowerCase());
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String s) {
                 searchLiveData(s.toLowerCase());
@@ -311,7 +378,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         return super.onCreateOptionsMenu(menu);
-
         //return  true;
     }
 
@@ -327,24 +393,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void searchLiveData(String s) {
-
+        productAdapter.notifyDataSetChanged();
         Query query = db.collection("AllItems").orderBy("search").startAt(s).endAt(s+"\uf8ff");
-        final FirestoreRecyclerOptions<Product> options = new FirestoreRecyclerOptions.Builder<Product>()
-                .setQuery(query,Product.class)
-                .build();
-
-        adapter = new AllItemsListAdapter(getApplicationContext(), options);
-        mProductList.setAdapter(adapter);
-        adapter.setOnItemClick(new AllItemsListAdapter.OnItemClick() {
+        ProductList = new ArrayList<>();
+        ProductList.clear();
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void getPosition(String item_id) {
-                Intent intent = new Intent(MainActivity.this, DescriptionActivity.class);
-                intent.putExtra("push_id", item_id);
-                startActivity(intent);
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot doc : task.getResult()){
+                        Product p = doc.toObject(Product.class);
+                        ProductList.add(p);
+                    }
+
+                    productAdapter = new ProductAdapter(MainActivity.this, ProductList);
+                    mProductList.setAdapter(productAdapter);
+                    //If ProgressDialog is showing Dismiss it
+                    if(pd.isShowing())
+                    {
+                        pd.dismiss();
+                    }
+
+                }
             }
         });
-
-        adapter.startListening();
     }
 
     private void searchData(String s) {
@@ -385,7 +457,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        adapter.startListening();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser==null)
@@ -396,11 +467,5 @@ public class MainActivity extends AppCompatActivity {
             startActivity(startIntent);
             finish();
         }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        adapter.stopListening();
     }
 }

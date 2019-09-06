@@ -79,6 +79,7 @@
                         android:layout_below="@id/input_layout_userId"
                         android:singleLine="true"
                         android:hint="Password"
+                        android:inputType="textPassword"
                         />
                 </android.support.design.widget.TextInputLayout>
 

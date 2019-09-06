@@ -14,14 +14,17 @@ import android.widget.Toast;
 
 import com.github.chrisbanes.photoview.PhotoView;
 import com.github.chrisbanes.photoview.PhotoViewAttacher;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 public class MyCustomPagerAdapter extends PagerAdapter{
     Context context;
-    int images[];
+    ArrayList<String> images = new ArrayList<String>();
     LayoutInflater layoutInflater;
 
 
-    public MyCustomPagerAdapter(Context context, int images[]) {
+    public MyCustomPagerAdapter(Context context, ArrayList<String> images) {
         this.context = context;
         this.images = images;
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -29,7 +32,7 @@ public class MyCustomPagerAdapter extends PagerAdapter{
 
     @Override
     public int getCount() {
-        return images.length;
+        return images.size();
     }
 
     @Override
@@ -40,9 +43,13 @@ public class MyCustomPagerAdapter extends PagerAdapter{
     @Override
     public Object instantiateItem(ViewGroup container, final int position) {
         final View itemView = layoutInflater.inflate(R.layout.item, container, false);
-
         PhotoView imageView = (PhotoView) itemView.findViewById(R.id.imageView);
-        imageView.setImageResource(images[position]);
+        //imageView.setImageResource(images[position]);
+
+        Picasso picasso = Picasso.get();
+        picasso.setIndicatorsEnabled(false);
+        picasso.load(images.get(position)).placeholder(R.drawable.placeholder).into(imageView);
+
         container.addView(itemView);
 
         //listening to image click
@@ -58,6 +65,7 @@ public class MyCustomPagerAdapter extends PagerAdapter{
                 settingsDialog.show();
                 */
                 Intent intent = new Intent(context,ImageDisplayActivity.class);
+                intent.putExtra("image",images.get(position));
                 context.startActivity(intent);
             }
         });

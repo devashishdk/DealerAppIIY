@@ -96,10 +96,10 @@ public class CartActivity extends AppCompatActivity {
                     for (QueryDocumentSnapshot doc : task.getResult()) {
                         Order p = doc.toObject(Order.class);
                         OrderList.add(p);
-                        price = price + (Integer.parseInt(p.getQuantity()) * Integer.parseInt(p.getProduct_price().toString()));
+                        price = price + (Integer.parseInt(p.getProduct_price().toString()));
                     }
 
-                    OrderAdapter = new CartAdapter(CartActivity.this, OrderList);
+                    OrderAdapter = new CartAdapter(CartActivity.this, OrderList,totalprice);
                     mOrderList.setAdapter(OrderAdapter);
                     totalprice.setText("₹" + String.valueOf(price));
                     //If ProgressDialog is showing Dismiss it

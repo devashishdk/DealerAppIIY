@@ -25,7 +25,8 @@
                     android:id="@+id/settings_image"
                     android:layout_width="170dp"
                     android:layout_height="170dp"
-                    android:layout_gravity="center"/>
+                    android:layout_gravity="center"
+                    android:src="@drawable/placeholder"/>
             </android.support.v7.widget.CardView>
 
             <com.devashish.erpapp.MyTextView

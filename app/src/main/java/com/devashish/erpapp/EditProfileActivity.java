@@ -1,5 +1,6 @@
 package com.devashish.erpapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -24,10 +25,12 @@ public class EditProfileActivity extends AppCompatActivity {
     Button saveButton;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseUser firebaseUser;
+    ProgressDialog pd;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
+
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mName = (EditText) findViewById(R.id.mName);
@@ -65,9 +68,18 @@ public class EditProfileActivity extends AppCompatActivity {
                 hashMap.put("state",mState.getText().toString());
                 hashMap.put("gst",mGST.getText().toString());
                 hashMap.put("mob",mMobile.getText().toString());
+
+                pd = new ProgressDialog(EditProfileActivity.this);
+                pd.setCanceledOnTouchOutside(false);
+                pd.setCancelable(true);
+                pd.setTitle("Loading....");
+                pd.setMessage("Please Wait");
+                pd.show();
+
                 db.collection("Dealers").document(firebaseUser.getUid()).update((Map)hashMap).addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
+                        pd.dismiss();
                         Intent intent = new Intent(EditProfileActivity.this,ProfileActivity.class);
                         startActivity(intent);
                         finish();

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.media.Image;
+import android.opengl.Visibility;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -37,8 +38,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -50,19 +54,19 @@ public class DescriptionActivity extends AppCompatActivity {
     NavigationView navigationView;
 
     ViewPager viewPager;
-    int images[] = {R.drawable.shopone,R.drawable.shopone};
-    MyCustomPagerAdapter myCustomPagerAdapter;
+    ArrayList<String> images = new ArrayList<String>();
+    MyCustomPagerAdapter myCustomPagerAdapter,myCustomPagerAdapter2;
     ProgressDialog pd;
     Toolbar toolbar;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseUser firebaseUser;
-    TextView name,price,mrp,brand,quantity,description,savings;
+    TextView name,price,mrp,brand,quantity,description,savings,deliver_user_name;
     Button orderButton,cartButton;
     ImageButton addQ,delQ;
     LinearLayout description_view;
     HashMap<String,String> hashMap,hashMapSecond;
-    String product_name,product_mrp,product_price,product_brand,image,product_id,product_description,user_image,user_search,user_name;
-
+    String product_name,product_mrp,product_price,product_brand,image,product_id,product_description,user_image,user_search,user_name,user_email;
+    ArrayList<String> imagesList;
     private void applyFontToMenuItem(MenuItem mi) {
         Typeface font = Typeface.createFromAsset(getAssets(), "fonts/font_app.ttf");
         SpannableString mNewTitle = new SpannableString(mi.getTitle());
@@ -85,7 +89,6 @@ public class DescriptionActivity extends AppCompatActivity {
         pd.setMessage("Please Wait");
         pd.show();
 
-
         description_view = (LinearLayout) findViewById(R.id.description_view);
         description_view.setVisibility(View.GONE);
         orderButton = (Button) findViewById(R.id.orderButton);
@@ -101,9 +104,9 @@ public class DescriptionActivity extends AppCompatActivity {
         delQ = (ImageButton) findViewById(R.id.del_q);
         quantity = (TextView) findViewById(R.id.quantity);
         description = (TextView) findViewById(R.id.description);
+        deliver_user_name = (TextView) findViewById(R.id.deliver_username);
         viewPager = (ViewPager)findViewById(R.id.viewPager);
-        myCustomPagerAdapter = new MyCustomPagerAdapter(DescriptionActivity.this, images);
-        viewPager.setAdapter(myCustomPagerAdapter);
+
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabDots);
         tabLayout.setupWithViewPager(viewPager, true);
         addQ.setOnClickListener(new View.OnClickListener() {
@@ -133,17 +136,19 @@ public class DescriptionActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
+                    user_name =  documentSnapshot.get("name").toString();
                     user_image = documentSnapshot.get("image").toString();
-                    user_name = documentSnapshot.get("name").toString();
-                    user_search = user_name.toLowerCase();
+
                     hashMapSecond.put("image", user_image);
                     hashMapSecond.put("name", user_name);
-                    hashMapSecond.put("search", user_search);
+                    hashMapSecond.put("search", documentSnapshot.get("name").toString().toLowerCase());
                     hashMapSecond.put("uid", firebaseUser.getUid().toString());
+
+                    deliver_user_name.setText(user_name);
+
                 }
             }
         });
-
 
         db.collection("AllItems").document(key).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -151,7 +156,6 @@ public class DescriptionActivity extends AppCompatActivity {
                 if(task.isSuccessful())
                 {
                     pd.dismiss();
-
                     DocumentSnapshot documentSnapshot = task.getResult();
                     product_name = documentSnapshot.get("item_name").toString();
                     product_mrp = documentSnapshot.get("item_mrp").toString();
@@ -160,6 +164,8 @@ public class DescriptionActivity extends AppCompatActivity {
                     image = documentSnapshot.get("item_image").toString();
                     product_id = documentSnapshot.get("item_id").toString();
                     product_description = documentSnapshot.get("item_desc").toString();
+
+                    images.add(image);
 
                     name.setText(product_name);
                     brand.setText(product_brand);
@@ -224,9 +230,6 @@ public class DescriptionActivity extends AppCompatActivity {
                             //sm.execute();
                             Toast.makeText(DescriptionActivity.this,"ADDED TO CART",Toast.LENGTH_LONG).show();
                             pd.dismiss();
-                            //Intent intent = new Intent(DescriptionActivity.this,OrderConfirmedActivity.class);
-                            //startActivity(intent);
-                            //finish();
                         }
                         else
                         {
@@ -282,16 +285,13 @@ public class DescriptionActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<Void> task) {
                                     String message = "You just received an order from " + firebaseUser.getUid().toString() + " \n\nPRODUCT NAME : " + product_name + "\nQuantity : " + quantity.getText().toString();
                                     SendMail sm = new SendMail(DescriptionActivity.this, "devashisht2914@gmail.com", "ORDER FROM " + firebaseUser.getUid().toString(), message);
+                                    SendMail sm1 = new SendMail(DescriptionActivity.this, firebaseUser.getEmail(), "ORDER FROM " + firebaseUser.getUid().toString(), message);
+
                                     //Executing sendmail to send email
                                     sm.execute();
-                                    Toast.makeText(DescriptionActivity.this, "SUCCESS", Toast.LENGTH_LONG).show();
-                                    pd.dismiss();
+                                    sm1.execute();
 
-
-                                    Intent intent = new Intent(DescriptionActivity.this, checksum.class);
-                                    intent.putExtra("orderid", "123");
-                                    intent.putExtra("custid", "211");
-                                    intent.putExtra("price", product_price);
+                                    Intent intent = new Intent(DescriptionActivity.this, OrderConfirmedActivity.class);
                                     startActivity(intent);
                                     finish();
                                 }
@@ -299,7 +299,7 @@ public class DescriptionActivity extends AppCompatActivity {
                         } else {
                             pd.dismiss();
                             orderButton.setClickable(true);
-                            Toast.makeText(DescriptionActivity.this, "FAIL", Toast.LENGTH_LONG).show();
+                             Toast.makeText(DescriptionActivity.this, "FAIL", Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -369,6 +369,18 @@ public class DescriptionActivity extends AppCompatActivity {
                         startActivity(intentCategory);
                         //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
                         break;
+                    case (R.id.saved):
+                        drawerLayout.closeDrawers();
+                        Intent intentSaved = new Intent(DescriptionActivity.this,SavedActivity.class);
+                        startActivity(intentSaved);
+                        //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        break;
+                    case (R.id.cart):
+                        drawerLayout.closeDrawers();
+                        Intent intentCart = new Intent(DescriptionActivity.this,CartActivity.class);
+                        startActivity(intentCart);
+                        //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        break;
                     case  (R.id.logout):
                         drawerLayout.closeDrawers();
                         FirebaseAuth.getInstance().signOut();
@@ -382,12 +394,43 @@ public class DescriptionActivity extends AppCompatActivity {
         });
 
 
+        imagesList = new ArrayList<String>();
+
+        db.collection("AllItems").document(key).collection("Images").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    myCustomPagerAdapter = new MyCustomPagerAdapter(DescriptionActivity.this, imagesList);
+                    for (QueryDocumentSnapshot doc : task.getResult()){
+                        String item_image = doc.get("item_image").toString();
+                        imagesList.add(item_image);
+                        myCustomPagerAdapter.notifyDataSetChanged();
+                    }
+
+                    if(!imagesList.isEmpty()) {
+                        viewPager.setAdapter(myCustomPagerAdapter);
+                    }
+                    else
+                    {
+                        myCustomPagerAdapter2 = new MyCustomPagerAdapter(DescriptionActivity.this, images);
+                        if(myCustomPagerAdapter2.getCount() == 1)
+                            viewPager.setAdapter(myCustomPagerAdapter2);
+                    }
+                }
+            }
+        });
+
+
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.optionmenu,menu);
+
+        MenuItem item = menu.findItem(R.id.search);
+        item.setVisible(false);
+
         return true;
     }
 

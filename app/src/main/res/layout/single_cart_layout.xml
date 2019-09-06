@@ -181,7 +181,7 @@
                 android:drawableTint="@color/colorPrimary"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:background="@drawable/outline_button"
+                android:background="@null"
                 android:text="SAVE"
                 android:textColor="@color/colorPrimary" />
 
@@ -193,7 +193,7 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:textSize="14sp"
-                android:background="@drawable/outline_button_second"
+                android:background="@null"
                 android:text="DELETE"
                 android:drawableLeft="@drawable/delete"
                 android:drawableTint="@android:color/holo_red_light"

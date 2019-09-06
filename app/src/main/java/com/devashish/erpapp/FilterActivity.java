@@ -34,6 +34,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -95,6 +96,7 @@ public class FilterActivity extends AppCompatActivity {
         mBrandList.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
 
         BrandList = new ArrayList<>();
+
 
         db.collection("AllItems").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -188,6 +190,18 @@ public class FilterActivity extends AppCompatActivity {
                         startActivity(intentProduct);
                         //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
                         break;
+                    case (R.id.saved):
+                        drawerLayout.closeDrawers();
+                        Intent intentSaved = new Intent(FilterActivity.this,SavedActivity.class);
+                        startActivity(intentSaved);
+                        //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        break;
+                    case (R.id.cart):
+                        drawerLayout.closeDrawers();
+                        Intent intentCart = new Intent(FilterActivity.this,CartActivity.class);
+                        startActivity(intentCart);
+                        //overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        break;
                     case  (R.id.logout):
                         drawerLayout.closeDrawers();
                         FirebaseAuth.getInstance().signOut();
@@ -202,7 +216,7 @@ public class FilterActivity extends AppCompatActivity {
 
 
 
-       ProductList = new ArrayList<>();
+        ProductList = new ArrayList<>();
 
         db.collection("AllItems").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override

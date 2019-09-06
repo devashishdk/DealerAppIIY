@@ -30,6 +30,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         this.mCtx = mCtx;
         this.CategoryList = CategoryList;
     }
+
     @NonNull
     @Override
     public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -40,6 +41,18 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         return CategoryViewHolder;
     }
 
+
+    OnItemClick onItemClick;
+
+    public void setOnItemClick(OnItemClick onItemClick) {
+        this.onItemClick = onItemClick;
+    }
+
+    public interface OnItemClick {
+
+        void getPosition(String userId);
+
+    }
     @Override
     public void onBindViewHolder(@NonNull final CategoryViewHolder holder, final int position) {
         final Category category = CategoryList.get(position);
@@ -49,9 +62,12 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             @Override
             public void onClick(View v) {
                 holder.card_layout.setClickable(false);
+                /*
                 Intent mIntent = new Intent(mCtx, CategoryItemDisplayActivity.class);
                 mIntent.putExtra("Key", PushId);
                 mCtx.startActivity(mIntent);
+                */
+                onItemClick.getPosition(PushId);
                 holder.card_layout.setClickable(true);
             }
         });

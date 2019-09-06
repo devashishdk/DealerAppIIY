@@ -52,7 +52,10 @@ public class SaveAdapter extends RecyclerView.Adapter<SaveAdapter.OrderViewHolde
         holder.quantity.setText("X "+Order.getQuantity());
         String status = Order.getStatus().toString();
         holder.status.setText(Order.getStatus());
-        Picasso.with(mCtx).load(Order.getProduct_image()).placeholder(R.drawable.orders).into(holder.imageView);
+
+        Picasso picasso = Picasso.get();
+        picasso.setIndicatorsEnabled(false);
+        picasso.load(Order.getProduct_image()).placeholder(R.drawable.placeholder).into(holder.imageView);
 
         final String PushId = OrderList.get(position).getProduct_id();
         holder.card_layout.setOnClickListener(new View.OnClickListener() {

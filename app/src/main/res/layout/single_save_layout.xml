@@ -139,10 +139,10 @@
                 android:textSize="14sp"
                 android:background="@drawable/outline_button"
                 android:text="ORDER"
-                android:drawableLeft="@drawable/orderdraw"
+                android:drawableLeft="@drawable/carticon"
                 android:drawableTint="@color/colorPrimary"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingRight="20dp"
                 android:textColor="@color/colorPrimary" />
 
 
@@ -159,7 +159,7 @@
                 android:drawableLeft="@drawable/delete"
                 android:drawableTint="@android:color/holo_red_light"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingRight="20dp"
                 android:textColor="@color/colorAccent" />
 
         </LinearLayout>

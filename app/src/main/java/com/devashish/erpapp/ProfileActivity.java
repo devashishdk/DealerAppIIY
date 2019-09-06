@@ -132,23 +132,9 @@ public class ProfileActivity extends AppCompatActivity {
                 mShopGST.setText(gst);
 
                 if (!image.equals("default")) {
-
                     //Picasso.with(ProfileActivity.this).load(image).placeholder(R.drawable.logo).into(mDisplayImage);
 
-                    Picasso.with(ProfileActivity.this).load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                            .into(mDisplayImage, new Callback() {
-                                @Override
-                                public void onSuccess() {
-
-                                }
-
-                                @Override
-                                public void onError() {
-
-                                    Picasso.with(ProfileActivity.this).load(image).into(mDisplayImage);
-
-                                }
-                            });
+                    Picasso.get().load(image).placeholder(R.drawable.placeholder).into(mDisplayImage);
 
                 }
 
@@ -191,143 +177,82 @@ public class ProfileActivity extends AppCompatActivity {
                 intent.putExtra("address",mShopAddress.getText().toString());
                 intent.putExtra("shopname",mShopName.getText().toString());
                 startActivity(intent);
-
+                finish();
             }
         });
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == GALLERY_PICK && resultCode == RESULT_OK){
-
+        if (requestCode == GALLERY_PICK && resultCode == RESULT_OK){
             Uri imageUri = data.getData();
-
             CropImage.activity(imageUri)
                     .setAspectRatio(1, 1)
-                    .setMinCropWindowSize(500, 500)
                     .start(this);
-
-            //Toast.makeText(ProfileActivity.this, imageUri, Toast.LENGTH_LONG).show();
-
         }
-
-
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
-            if (resultCode == RESULT_OK) {
-
-
-                mProgressDialog = new ProgressDialog(ProfileActivity.this);
-                mProgressDialog.setTitle("Uploading Image...");
-                mProgressDialog.setMessage("Please wait while we upload and process the image.");
-                mProgressDialog.setCanceledOnTouchOutside(false);
-                mProgressDialog.show();
-
-
+            if (resultCode == RESULT_OK){
                 Uri resultUri = result.getUri();
+                Picasso picasso = Picasso.get();
+                picasso.setIndicatorsEnabled(false);
+                picasso.load(resultUri).placeholder(R.mipmap.ic_launcher).into(mDisplayImage);
 
-                File thumb_filePath = new File(resultUri.getPath());
+                pd.setMessage("updating profile");
+                pd.setCanceledOnTouchOutside(false);
+                pd.show();
 
-                final String current_user_id = mCurrentUser.getUid();
+                final File thumb_file_Path = new File(resultUri.getPath());
 
-
-                Bitmap thumb_bitmap = new Compressor(this)
+                final Bitmap thumb_bitmap = new Compressor(this)
                         .setMaxWidth(200)
                         .setMaxHeight(200)
-                        .setQuality(75)
-                        .compressToBitmap(thumb_filePath);
-
+                        .setQuality(50)
+                        .compressToBitmap(thumb_file_Path);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
                 final byte[] thumb_byte = baos.toByteArray();
 
+                final StorageReference thumb_filepath = mImageStorage.child("profile_images").child("thumb")
+                        .child(mCurrentUser.getUid().toString() + ".jpg");
 
-                StorageReference filepath = mImageStorage.child("profile_images").child(current_user_id + ".jpg");
-                final StorageReference thumb_filepath = mImageStorage.child("profile_images").child("thumbs").child(current_user_id + ".jpg");
-
-                thumb_filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
+                uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful()){
 
-                        if(task.isSuccessful()){
-                            //final String download_url = task.getResult().getMetadata().getReference().getDownloadUrl().toString();
-                            task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            thumb_filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
-                                    download_url = uri.toString();
-                                }
-                            });
+                                    String thumb_downloadUrl = uri.toString();
 
-                            UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
-                            uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> thumb_task) {
+                                    Map update_hashMap = new HashMap();
+                                    update_hashMap.put("image", thumb_downloadUrl);
 
-                                    if(thumb_task.isSuccessful()){
-
-                                        thumb_task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                            @Override
-                                            public void onSuccess(Uri uri) {
-                                                thumb_downloadUrl = uri.toString();
-                                            }
-                                        });
-
-                                        Map update_hashMap = new HashMap();
-                                        update_hashMap.put("profile_pic", download_url);
-                                        update_hashMap.put("profile_thumbUrl", thumb_downloadUrl);
-
-                                        mUserDatabase.collection("Users").document(current_user_id).update(update_hashMap).addOnCompleteListener(new OnCompleteListener() {
-                                            @Override
-                                            public void onComplete(@NonNull Task task) {
-                                                if(task.isSuccessful()){
-
-                                                    mProgressDialog.dismiss();
-                                                    Toast.makeText(ProfileActivity.this, "Success Uploading.", Toast.LENGTH_LONG).show();
-
-                                                }
-
-                                            }
-                                        });
-
-                                    } else {
-
-                                        Toast.makeText(ProfileActivity.this, "Error in uploading thumbnail.", Toast.LENGTH_LONG).show();
-                                        mProgressDialog.dismiss();
-
-                                    }
-
+                                    mUserDatabase.collection("Dealers").document(mCurrentUser.getUid())
+                                            .update(update_hashMap).addOnSuccessListener(new OnSuccessListener() {
+                                        @Override
+                                        public void onSuccess(Object o) {
+                                            pd.dismiss();
+                                            Toast.makeText(ProfileActivity.this, "profile updated", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
 
                                 }
                             });
-
-
-
-                        } else {
-
-                            Toast.makeText(ProfileActivity.this, "Error in uploading.", Toast.LENGTH_LONG).show();
-                            mProgressDialog.dismiss();
 
                         }
-
                     }
                 });
 
 
-
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-
-                Exception error = result.getError();
-
             }
         }
-
-
     }
-
 
     public static String random() {
         Random generator = new Random();
@@ -340,6 +265,8 @@ public class ProfileActivity extends AppCompatActivity {
         }
         return randomStringBuilder.toString();
     }
+
+
 
 
 }

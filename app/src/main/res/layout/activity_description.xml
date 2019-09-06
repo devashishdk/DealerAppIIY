@@ -36,7 +36,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="ERP"
+                        android:text="@string/app_name"
                         android:textColor="@android:color/white"
                         android:textSize="16sp" />
                 </android.support.v7.widget.Toolbar>
@@ -63,17 +63,31 @@
                             android:src="@drawable/gps"
                             android:tint="@android:color/white" />
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="24dp"
-                            android:layout_gravity="center"
+                            android:orientation="horizontal"
                             android:layout_marginBottom="10dp"
                             android:layout_marginLeft="10dp"
                             android:layout_marginTop="10dp"
-                            android:gravity="center"
-                            android:text="Deliver to Devashish Thakur, 140413"
-                            android:textColor="@android:color/white"
-                            android:textSize="14sp" />
+                            android:layout_gravity="center"
+                            android:gravity="center">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="24dp"
+                                android:gravity="center"
+                                android:text="Deliver to "
+                                android:textColor="@android:color/white"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/deliver_username"
+                                android:layout_width="wrap_content"
+                                android:layout_height="24dp"
+                                android:gravity="center"
+                                android:text="Devashish Thakur"
+                                android:textColor="@android:color/white"
+                                android:textSize="14sp" />
+                        </LinearLayout>
                     </LinearLayout>
 
                     <android.support.v7.widget.CardView
@@ -117,10 +131,9 @@
                                 <android.support.v4.view.ViewPager
                                     android:id="@+id/viewPager"
                                     android:layout_width="match_parent"
-                                    android:layout_height="150dp"
-                                    android:layout_marginBottom="10dp"
-                                    android:layout_marginLeft="30dp"
-                                    android:layout_marginRight="30dp"
+                                    android:layout_height="180dp"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
                                     android:layout_marginTop="10dp">
                                 </android.support.v4.view.ViewPager>
 
@@ -194,9 +207,8 @@
                                     android:layout_marginBottom="5dp"
                                     android:gravity="start"
                                     android:text="Save"
-                                    android:textStyle="italic"
-                                    android:textColor="@android:color/holo_red_dark"
-                                    android:textSize="16sp"
+                                    android:textColor="@color/colorPrimary"
+                                    android:textSize="14sp"
                                     />
                                 <com.devashish.erpapp.MyTextView
                                     android:id="@+id/saving"
@@ -205,14 +217,16 @@
                                     android:layout_margin="5dp"
                                     android:gravity="start"
                                     android:text="500 rs"
-                                    android:textColor="@android:color/holo_red_dark"
+                                    style="@style/TextAppearance.AppCompat.Title"
+                                    android:textColor="@color/colorPrimary"
                                     android:textSize="16sp"
                                     />
                             </LinearLayout>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="In stock"
+                                android:text="IN STOCK"
+                                style="@style/TextAppearance.AppCompat.Body2"
                                 android:textColor="@color/colorGreen"
                                 android:textSize="14sp"
                                 android:layout_marginLeft="10dp"/>
@@ -245,6 +259,7 @@
                                     android:layout_margin="10dp"
                                     android:gravity="center"
                                     android:text="1"
+                                    style="@style/TextAppearance.AppCompat.Body2"
                                     android:textSize="16dp" />
 
                                 <ImageButton
@@ -306,8 +321,11 @@
                                 android:layout_marginLeft="10dp"
                                 android:layout_marginRight="10dp"
                                 android:layout_marginTop="15dp"
-                                android:textColor="@android:color/black"
-                                android:text="Sample Description" />
+                                android:text="Sample Description"
+                                android:background="@drawable/outline_description"
+                                android:padding="10dp"
+                                style="@style/TextAppearance.AppCompat.Subhead"
+                                android:textSize="15sp"/>
                         </LinearLayout>
                     </android.support.v7.widget.CardView>
                 </LinearLayout>
